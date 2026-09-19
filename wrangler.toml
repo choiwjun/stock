@@ -26,4 +26,4 @@ class_name = "StockResearchContainer"
 
 [[migrations]]
 tag = "v1"
-new_classes = ["StockResearchContainer"]
+new_sqlite_classes = ["StockResearchContainer"]
