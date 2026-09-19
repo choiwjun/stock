@@ -53,7 +53,18 @@
 - watchlist add/list/delete
 - outbox·관측성·contract/permission/E2E/accessibility 테스트
 
-## 5. Phase 2 — 시장·검색·스크리너 확장
+## 5. Phase 1.5 — Staging 배포·복구 증거
+
+**현재 상태:** Neon `stock-research` 프로젝트를 AWS Singapore에 생성하고 `001_initial.sql`을 적용했다. GitHub `main` baseline도 push했다. Cloudflare Container 배포는 Node runtime 호환성·Neon snapshot adapter·secret 주입을 검증한 뒤 staging으로만 진행한다.
+
+- Docker/Cloudflare Container에서 `healthz`, `readyz`, 대표 route를 확인한다.
+- Neon connection string은 Cloudflare secret으로만 주입하고 저장소에는 남기지 않는다.
+- staging에서 snapshot save/load, SSE reconnect, 권한 잠금, 로그 마스킹을 확인한다.
+- 실제 provider/auth/payment와 production domain repository가 없으면 Gate E/F를 통과시키지 않는다.
+
+**통과 조건:** 배포/롤백/복구 runbook 증거, secret scan, 계약/접근성 회귀, sandbox 제한 표시가 모두 확인됨.
+
+## 6. Phase 2 — 시장·검색·스크리너 확장
 
 - 시장 개요와 검색 결과
 - 승인된 구조화 조건 메타데이터·실행·결과 기준 시각
@@ -63,7 +74,7 @@
 
 자연어 스크리너·저장 필터·AI 점수는 별도 승인 없이는 추가하지 않는다.
 
-## 6. Phase 3 — 결제 상용화
+## 7. Phase 3 — 결제 상용화
 
 - 실제 payment provider 연동
 - 웹훅 서명·중복·역순·권위 재조회·대사
@@ -71,14 +82,14 @@
 - 열린 스트림 revoke 및 권한 캐시 무효화 측정
 - 개인정보·법무·라이선스·고객지원 runbook
 
-## 7. Phase 4 — 인사이트·성과·운영 고도화
+## 8. Phase 4 — 인사이트·성과·운영 고도화
 
 - 승인된 인사이트 콘텐츠
 - 성과 산정 기준 승인 후 대시보드
 - 운영자 데이터 품질·알고리즘·공급자 모니터링
 - 고객 인터뷰와 전환/오류 지표 개선
 
-## 8. 의존성 DAG
+## 9. 의존성 DAG
 
 ```text
 범위·법무·공급자 결정
@@ -90,7 +101,7 @@
   → 인사이트/성과 후속
 ```
 
-## 9. 릴리즈 게이트
+## 10. 릴리즈 게이트
 
 - Gate A: 제품 범위·디자인·접근성 기준 승인 완료
 - Gate B: 대표 종목 데이터·신호·evidence·freshness 계약 검증
@@ -99,11 +110,11 @@
 - Gate E: 법무·라이선스·개인정보·보안 검토 승인
 - Gate F: 관측성·장애 주입·복구·롤백·고객지원 준비
 
-## 10. 일정 산정 입력
+## 11. 일정 산정 입력
 
 캘린더 일정은 다음이 정해진 뒤 산정한다: 담당자/가용 인력, provider sandbox 접근일, 법무 검토 리드타임, 지원 종목 수, 이벤트 빈도·동시 연결, 테스트 데이터, 운영시간, 보안·접근성 검증 범위. 입력 없이 단계만으로 출시일을 약속하지 않는다.
 
-## 11. 완료 정의
+## 12. 완료 정의
 
 - 요구사항·상태·권한·오류 추적표와 자동/수동 테스트 존재
 - 최신성·중복·역순·gap·replay 만료·revoke가 검증됨

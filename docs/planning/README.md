@@ -33,6 +33,7 @@
 14. [Coding Convention](./12-coding-convention.md)
 15. [Implementation Tickets](./13-tickets.md)
 16. [Decision Log](./decision-log.md)
+17. [Deployment Plan](./14-deployment-plan.md)
 
 ## 정본 API 경로
 

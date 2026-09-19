@@ -23,6 +23,12 @@ npm run security
 npm test
 ```
 
+Neon staging migration은 connection string을 셸에 직접 출력하지 않고 secret manager 또는 로컬 환경변수로 주입합니다.
+
+```bash
+DATABASE_URL='(secret manager에서 주입)' npm run db:migrate
+```
+
 `npm run security`는 저장소에서 고신뢰 비밀 패턴을 탐지하지만, 실제 secrets manager·dependency/container scan을 대체하지 않습니다.
 
 성능 측정은 임계값을 임의로 합격 처리하지 않고 결과만 출력합니다.
@@ -78,6 +84,6 @@ MEASURE_PATH=/api/v1/stocks/005930/quote MEASURE_REQUESTS=200 MEASURE_CONCURRENC
 - 구현 단위: `13-tickets.md`의 대표 수직 슬라이스 관련 티켓
 
 실제 공급자, 결제, 법무·개인정보 보존 정책이 승인되기 전에는 이 데모를 상용 결제나 실제 프리미엄 신호 공개로 간주하지 않습니다.
-PostgreSQL migration은 논리 모델 검증용이며, 운영 적용 전 expand/backfill/verify/switch/contract와 복구 리허설이 필요합니다.
+PostgreSQL migration은 논리 모델 검증용이며, 현재 Neon `stock-research` staging에만 적용했습니다. 운영 적용 전 expand/backfill/verify/switch/contract와 복구 리허설이 필요합니다. Cloudflare Container 배포 계획은 [배포 계획](docs/planning/14-deployment-plan.md)을 따릅니다.
 
 운영 상태 확인·snapshot 복구·outbox/webhook 장애 대응 절차는 [운영·복구 Runbook](</mnt/c/Users/wj941/Documents/stock/docs/operations-runbook.md>)에서 확인합니다. 실제 운영 승인을 대체하지 않습니다.

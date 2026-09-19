@@ -1,6 +1,15 @@
 # 구현 상태 기록
 
-기준 문서: `docs/planning/README.md` 및 `docs/planning/00-brief.md`~`13-tickets.md`.
+기준 문서: `docs/planning/README.md` 및 `docs/planning/00-brief.md`~`14-deployment-plan.md`.
+
+## 배포 진행 상태
+
+- GitHub `main` baseline push 완료: `8ecf79a` 및 deployment ignore 보완 `76d0661`
+- Neon `stock-research` staging project 생성 완료: `flat-surf-27471705`, AWS Asia Pacific 1 (Singapore)
+- `001_initial.sql` + `002_sandbox_snapshots.sql` 적용 및 public table 25개 확인
+- `NeonSnapshotStore`와 `npm run db:migrate`를 추가하고 실제 Neon save/load smoke test 통과
+- Cloudflare Container Wrangler 설정 dry-run 통과. 실제 image build/deploy는 현재 로컬 Rancher Desktop Docker daemon 미기동으로 대기 중
+- production 전환은 실제 provider/auth/payment/domain repository/법무 승인 전 차단
 
 ## 이번 구현에서 검증한 범위
 

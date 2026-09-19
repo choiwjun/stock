@@ -33,7 +33,7 @@ test("production rejects sandbox session creation and ignores demo role headers"
   const readinessBody = await readiness.json();
   assert.equal(readiness.status, 503);
   assert.equal(readinessBody.status, "not_ready");
-  assert.deepEqual(readinessBody.reasons, ["AUTH_PROVIDER_SANDBOX", "MARKET_PROVIDER_SANDBOX", "PAYMENT_WEBHOOK_NOT_CONFIGURED", "METRICS_NOT_CONFIGURED"]);
+  assert.deepEqual(readinessBody.reasons, ["AUTH_PROVIDER_SANDBOX", "MARKET_PROVIDER_SANDBOX", "PAYMENT_WEBHOOK_NOT_CONFIGURED", "METRICS_NOT_CONFIGURED", "PERSISTENCE_NOT_CONFIGURED"]);
   assert.equal(readinessBody.checks.authProvider.status, "not_ready");
   assert.equal(readinessBody.checks.paymentWebhook.status, "not_ready");
   assert.equal(readinessBody.checks.metrics.status, "not_ready");

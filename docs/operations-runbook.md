@@ -12,7 +12,19 @@ npm test
 
 실패한 검사를 무시하고 배포하지 않는다. `npm run measure` 결과는 현재 실행 환경의 참고값이며 승인된 SLO가 아니다.
 
-## 2. 기동·상태 확인
+## 2. Neon staging 확인
+
+현재 staging DB는 Neon 프로젝트 `stock-research`(`flat-surf-27471705`, AWS Asia Pacific 1 Singapore)의 `production` branch / `neondb`다. connection string은 `DATABASE_URL` 또는 Cloudflare secret으로만 전달하고 로그·Git·문서에 기록하지 않는다.
+
+```bash
+DATABASE_URL='(secret manager에서 주입)' npm run db:migrate
+```
+
+- migration은 `db/migrations/001_initial.sql`을 적용하고 public table 수·제약 불변식을 확인한다.
+- 현재 migration은 논리 모델 검증용이며, domain-level production repository·backup·PITR 승인 전에는 production 데이터 저장소로 간주하지 않는다.
+- Neon project/branch 삭제·reset은 snapshot과 migration evidence를 보존한 뒤 별도 승인한다.
+
+## 3. 기동·상태 확인
 
 ```bash
 STORE_SNAPSHOT_PATH=/var/lib/stock-demo/store.json npm start
@@ -26,7 +38,7 @@ curl -sS http://127.0.0.1:4173/internal/metrics
 - 운영 metrics endpoint를 사용할 때는 설정된 접근 토큰을 안전한 운영 방식으로 전달한다. 토큰 값을 로그·명령 기록·이슈에 남기지 않는다.
 - production에서 auth/payment/market provider가 sandbox이거나 Origin/metrics 설정이 없으면 `503`을 정상적인 fail-closed 결과로 취급한다.
 
-## 3. Snapshot 저장·복구
+## 4. Snapshot 저장·복구
 
 ### 정상 종료
 
@@ -42,7 +54,7 @@ curl -sS http://127.0.0.1:4173/internal/metrics
 
 저장은 고유 임시 파일에 기록하고 flush 후 rename하며, 동시 저장은 직렬화한다. 이 방식은 sandbox 파일 손상을 줄이지만 PostgreSQL 백업·point-in-time 복구를 대체하지 않는다.
 
-## 4. Outbox·stream 장애
+## 5. Outbox·stream 장애
 
 `/readyz`의 `checks.outboxWorker`와 metrics의 `outbox_worker_error_total`을 먼저 확인한다.
 
@@ -53,7 +65,7 @@ curl -sS http://127.0.0.1:4173/internal/metrics
 
 복구 후에는 같은 스트림의 `epoch/sequence`가 연속인지, replay가 `replayable=true`인지, 불가능한 경우 snapshot fallback과 `resyncReason`이 반환되는지 확인한다.
 
-## 5. 결제 webhook 장애
+## 6. 결제 webhook 장애
 
 sandbox 서명은 다음 형식이다.
 
@@ -66,7 +78,7 @@ HMAC input: <unix-seconds>.<raw-json-body>
 
 결제 성공 응답만으로 권한을 활성화하지 않는다. `PENDING` → provider 이벤트 반영 → entitlement 확인 순서를 유지하고, 만료·환불·정지 시 열린 stream의 `entitlement.revoked`와 연결 종료를 확인한다.
 
-## 6. 보안 사고·권한 회수
+## 7. 보안 사고·권한 회수
 
 인증 세션 탈취, 소유권 오류, premium payload 노출이 의심되면:
 
@@ -76,7 +88,7 @@ HMAC input: <unix-seconds>.<raw-json-body>
 4. provider key 교체와 법무·보안·지원 통지 여부를 승인된 사고 절차로 결정한다.
 5. 수정 후 `npm run security && npm run check && npm test` 결과와 잔여 위험 승인을 릴리즈 기록에 첨부한다.
 
-## 7. 롤백·미결정 게이트
+## 8. 롤백·미결정 게이트
 
 롤백은 새 프로세스를 중지하고 이전에 승인된 build와 검증된 snapshot을 사용해 재기동하는 방식으로 수행한다. 데이터 삭제, snapshot 덮어쓰기, 상태 강제 전이는 먼저 보존본을 만든 뒤 승인된 절차로만 수행한다.
 

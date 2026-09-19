@@ -22,6 +22,7 @@
 | DEC-016 | 모바일 고정 요소 | 모바일 market tape는 문서 흐름의 가로 스크롤 rail로 두고, 종목 상세 탭은 sticky를 해제한다. 줄바꿈되는 명령 바·상단 고정 chrome과 콘텐츠가 겹치지 않도록 한다 | 승인 (구현 결정, 2026-09-19) | 320px·375px에서 horizontal page overflow와 sticky overlap을 방지. tape/table 내부 스크롤은 유지 | 디자인/기술 |
 | DEC-017 | 리서치 기반 재설계 | `EVIDENCE TAPE / 근거 우선 리서치 데스크`: 반복 카드 대신 Market Pulse→Movers→Flow/Table, 종목은 Stock Identity→Quote Lead→ChartWithTable→Evidence Panels. paper canvas·ink chrome·강한 display type·tabular figures·규칙선·실제 데이터 그래픽을 사용 | 제안 (superseded, 2026-09-19) | 국내·글로벌 주식 UX 및 AOI Alpha 비교 조사 결과. AOI의 hero/외형과 Bloomberg/TradingView 클리셰는 복제하지 않고, 근거·신선도·판단 흐름을 제품 고유 언어로 만든다 | 제품/디자인 |
 | DEC-018 | Chainx-inspired 시각 전환 | Chainx – Stock Investment의 상단 market ticker·데스크톱 sidebar·강한 KPI·dark widget grid·chart toolbar·purple interaction accent를 참고해 `Chainx-inspired EVIDENCE DESK / 다크 투자 리서치 커맨드센터`로 전환한다. Chainx의 포트폴리오·잔고·매수 기능은 가져오지 않으며, 국내 개별주식·근거·freshness·권한 계약과 상승 레드/하락 블루를 유지한다 | 승인 (사용자, 2026-09-20) | 기존 light/paper 화면이 사용자의 기대보다 촌스럽다는 피드백. 원본 디자인의 자산·카피 복제는 금지하고 정보 구조와 시각 원칙만 재해석한다 | 제품/디자인 |
+| DEC-019 | staging 배포 대상 | Neon 신규 프로젝트 `stock-research`(project `flat-surf-27471705`, AWS Asia Pacific 1 Singapore)를 생성하고, 기존 `market-dashboard` Pages 프로젝트는 보존한다. 단기 검증은 Cloudflare Container + Node sandbox runtime을 사용하며 Neon JSON snapshot은 staging 전용으로 제한한다 | 승인 (사용자, 2026-09-20) | 현재 Node `http`/SSE runtime을 Pages에 그대로 올리면 API가 동작하지 않는다. 실제 provider·auth·payment·domain repository가 승인되기 전 production 배포를 금지한다 | 기술/운영 |
 
 ## 결정 등록 규칙
 

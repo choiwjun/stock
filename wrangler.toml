@@ -1,0 +1,29 @@
+name = "stock-research"
+main = "cloudflare/worker.js"
+compatibility_date = "2025-09-01"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = true
+
+[vars]
+NODE_ENV = "development"
+MARKET_PROVIDER = "fixture"
+APP_ORIGIN = ""
+
+[observability]
+enabled = true
+
+[[containers]]
+name = "stock-research"
+class_name = "StockResearchContainer"
+image = "./Dockerfile"
+image_build_context = "."
+max_instances = 1
+instance_type = "basic"
+
+[[durable_objects.bindings]]
+name = "STOCK_RESEARCH_CONTAINER"
+class_name = "StockResearchContainer"
+
+[[migrations]]
+tag = "v1"
+new_classes = ["StockResearchContainer"]

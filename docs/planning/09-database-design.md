@@ -177,3 +177,12 @@ PostgreSQL 제약은 종류별 절차를 사용한다. FK/CHECK의 `NOT VALID` �
 - point-in-time 복구 후 sequence·outbox·권한 재계산 리허설
 - RPO/RTO와 복구 담당자·알람·runbook 승인
 - 공급자 원본을 보관하지 않는 경우에도 입력 식별자·버전·asOf로 계산 재현 가능
+
+## 8. 승인된 staging 연결
+
+- Neon project: `stock-research` (`flat-surf-27471705`)
+- Region: AWS Asia Pacific 1 (Singapore)
+- Branch/database: `production` / `neondb`
+- `001_initial.sql`과 staging 전용 `002_sandbox_snapshots.sql`을 적용했고 public table 25개를 확인했다.
+- 현재 애플리케이션은 아직 domain table을 직접 사용하는 repository가 아니므로, staging persistence adapter가 추가되기 전까지 DB migration 적용은 계약 검증 증거로만 취급한다.
+- connection string과 password는 문서·Git·로그에 기록하지 않는다.

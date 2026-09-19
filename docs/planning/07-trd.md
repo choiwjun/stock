@@ -132,6 +132,9 @@ Stream gateway → authenticated topic subscription → revoke fanout
 - API·워커·gateway 독립 롤백
 - 실제 신호 공개 전 공급자·법무·관측성·권한 회수 체크리스트 통과
 - 장애 주입, replay 만료, 권한 회수, 결제 역순 이벤트 리허설 수행
+- 승인된 staging 경로는 Cloudflare Container에서 현재 Node HTTP/SSE sandbox를 실행하고 Neon `stock-research` PostgreSQL 프로젝트를 사용한다.
+- Neon JSON snapshot persistence는 staging 복구 검증용이며, production에서는 domain table repository·transaction boundary·동시성 정책을 구현하기 전 사용하지 않는다.
+- 기존 Cloudflare Pages `market-dashboard` 프로젝트는 이 서비스의 배포 대상이 아니며 덮어쓰지 않는다.
 
 ## 11. 미결정
 

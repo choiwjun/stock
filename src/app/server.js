@@ -14,6 +14,7 @@ import { SESSION_TTL_MS, SessionStore, parseCookies, serializeSessionCookie, ses
 import { MetricsRegistry } from "../application/metrics.js";
 import { createMarketProvider } from "../application/market-provider.js";
 import { FileSnapshotStore } from "../application/snapshot-store.js";
+import { NeonSnapshotStore } from "../application/neon-snapshot-store.js";
 import { validateCheckout, validateDemoSession, validateIdempotencyKey, validatePaymentWebhook, validateScreenerQuery, validateSearchQuery, validateWatchlistMutation } from "../application/validation.js";
 import { ENTITLEMENT } from "../domain/constants.js";
 import { entitlementForSubscription, shouldRevokeEntitlement } from "../domain/subscription.js";
@@ -82,9 +83,21 @@ const originAllowlistConfigured = Boolean(normalizedOrigin);
 const allowedOrigins = PRODUCTION
   ? new Set(normalizedOrigin ? [normalizedOrigin] : [])
   : new Set([normalizedOrigin, normalizeOrigin(`http://localhost:${PORT}`), normalizeOrigin(`http://127.0.0.1:${PORT}`)].filter(Boolean));
-const snapshotStore = new FileSnapshotStore({ path: process.env.STORE_SNAPSHOT_PATH });
+const snapshotStore = process.env.NEON_DATABASE_URL || process.env.DATABASE_URL
+  ? new NeonSnapshotStore({ connectionString: process.env.NEON_DATABASE_URL || process.env.DATABASE_URL })
+  : new FileSnapshotStore({ path: process.env.STORE_SNAPSHOT_PATH });
 const loadedSnapshot = await snapshotStore.load(store, { auditLog: AUDIT });
 if (loadedSnapshot.loaded) console.log("Loaded sandbox store snapshot");
+
+let snapshotWriteChain = Promise.resolve();
+function persistSnapshot() {
+  const operation = snapshotWriteChain.then(
+    () => snapshotStore.save(store, { auditLog: AUDIT }),
+    () => snapshotStore.save(store, { auditLog: AUDIT }),
+  );
+  snapshotWriteChain = operation.then(() => undefined, () => undefined);
+  return operation;
+}
 
 const MIME_TYPES = {
   ".html": "text/html; charset=utf-8",
@@ -134,6 +147,10 @@ function readiness() {
       status: metricsTokenConfigured ? (PRODUCTION ? "ready" : "sandbox") : (PRODUCTION ? "not_ready" : "sandbox"),
       configured: metricsTokenConfigured,
     },
+    persistence: {
+      status: snapshotStore.enabled ? "ready" : (PRODUCTION ? "not_ready" : "sandbox"),
+      kind: snapshotStore instanceof NeonSnapshotStore ? "neon-sandbox" : "file-sandbox",
+    },
   };
   const reasons = [];
   if (!streamOutboxWorker.active) reasons.push("OUTBOX_WORKER_STOPPED");
@@ -142,6 +159,7 @@ function readiness() {
   if (PRODUCTION) reasons.push(paymentWebhookConfigured ? "PAYMENT_PROVIDER_SANDBOX" : "PAYMENT_WEBHOOK_NOT_CONFIGURED");
   if (PRODUCTION && !originAllowlistConfigured) reasons.push("ORIGIN_NOT_CONFIGURED");
   if (PRODUCTION && !metricsTokenConfigured) reasons.push("METRICS_NOT_CONFIGURED");
+  if (PRODUCTION && !snapshotStore.enabled) reasons.push("PERSISTENCE_NOT_CONFIGURED");
   return {
     status: reasons.length === 0 ? "ready" : "not_ready",
     mode: PRODUCTION ? "production" : "sandbox",
@@ -444,6 +462,7 @@ function publishTickerEvent(ticker) {
   const nextSignal = makeSignal(ticker, cursor);
   try {
     store.appendStreamEvent(ticker, nextSignal);
+    void persistSnapshot().catch((cause) => console.error(JSON.stringify({ error: cause.message, code: cause.code || "SNAPSHOT_SAVE_FAILED" })));
   } catch (cause) {
     METRICS.increment("stream_publish_error_total", { reason: cause.code || "UNKNOWN" });
     console.error(JSON.stringify({ error: cause.message, ticker, streamKey: nextSignal.streamKey, sequence: nextSignal.sequence }));
@@ -660,6 +679,7 @@ async function api(request, res, id) {
       if (!validation.ok) return error(res, 400, validation.code, validation.message, id, validation.details);
       if (!validateTicker(validation.value.ticker, res, id)) return;
       const result = store.addWatchlistItem(roleContext(request).userId, validation.value.ticker, key);
+      await persistSnapshot();
       recordAudit(request, id, { action: result.duplicate ? "WATCHLIST_ITEM_DUPLICATE" : "WATCHLIST_ITEM_ADDED", resourceType: "watchlist_item", resourceId: `${roleContext(request).userId}:${validation.value.ticker}`, metadata: { ticker: validation.value.ticker, duplicate: result.duplicate } });
       return json(res, result.duplicate ? 200 : 201, { ...result, item: { ...marketProvider.getStock(validation.value.ticker), quote: marketProvider.getQuote(validation.value.ticker) } }, id);
     } catch (cause) {
@@ -679,6 +699,7 @@ async function api(request, res, id) {
     if (!validateTicker(ticker, res, id)) return;
     try {
       const result = store.removeWatchlistItem(roleContext(request).userId, ticker, key);
+      await persistSnapshot();
       recordAudit(request, id, { action: "WATCHLIST_ITEM_REMOVED", resourceType: "watchlist_item", resourceId: `${roleContext(request).userId}:${ticker}`, metadata: { ticker, removed: result.removed } });
       return json(res, 200, result, id);
     } catch (cause) {
@@ -716,6 +737,7 @@ async function api(request, res, id) {
     if (!checkoutValidation.ok) return error(res, 400, checkoutValidation.code, checkoutValidation.message, id, checkoutValidation.details);
     try {
       const subscription = store.checkout(roleContext(request).userId, key);
+      await persistSnapshot();
       recordAudit(request, id, { action: "SUBSCRIPTION_CHECKOUT_STARTED", resourceType: "subscription", resourceId: roleContext(request).userId, metadata: { status: subscription.status, provider: subscription.provider || "sandbox" } });
       return json(res, 202, { subscription, message: "결제 확인 중입니다. 권한이 활성화되면 신호를 확인할 수 있습니다." }, id);
     } catch (cause) {
@@ -730,6 +752,7 @@ async function api(request, res, id) {
     if (!key) return;
     try {
       const subscription = store.cancel(roleContext(request).userId, key);
+      await persistSnapshot();
       recordAudit(request, id, { action: "SUBSCRIPTION_CANCEL_REQUESTED", resourceType: "subscription", resourceId: roleContext(request).userId, metadata: { status: subscription.status } });
       return json(res, 200, { subscription, asOf: new Date().toISOString() }, id);
     } catch (cause) {
@@ -779,6 +802,7 @@ async function api(request, res, id) {
       }
       throw cause;
     }
+    await persistSnapshot();
     METRICS.increment("payment_webhook_total", { applied: result.applied, duplicate: result.duplicate || false });
     recordAudit(request, id, { action: "PAYMENT_WEBHOOK_PROCESSED", resourceType: "payment_event", resourceId: `${event.provider}:${event.providerEventId}`, actorType: "provider", actorId: event.provider, metadata: { eventType: event.eventType, revision: event.revision, applied: result.applied, duplicate: result.duplicate || false, status: result.status || result.reason || "UNKNOWN" } });
     if (result.applied && shouldRevokeEntitlement(result.status)) revokeStreamsForUser(event.userId, result.status, { requestId: id, traceId: id });
@@ -862,7 +886,7 @@ async function shutdown() {
   for (const client of openStreams) client.res.end();
   server.close(async () => {
     try {
-      const result = await snapshotStore.save(store, { auditLog: AUDIT });
+      const result = await persistSnapshot();
       if (result.saved) console.log("Saved sandbox store snapshot");
       process.exit(0);
     } catch (cause) {
