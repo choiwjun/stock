@@ -8,6 +8,7 @@
 - **Neon 리전:** AWS Asia Pacific 1 (Singapore)
 - **Neon branch/database:** `production` / `neondb`
 - **Cloudflare:** 기존 `market-dashboard` Pages 프로젝트는 사용하지 않으며 덮어쓰지 않는다.
+- **현재 결과:** Docker image local build는 성공했지만, account가 Workers Free plan이라 Cloudflare Containers API가 `requires the Workers Paid plan`으로 거부했다. 따라서 staging URL/secret injection은 아직 완료로 주장하지 않는다.
 
 ## 목표 아키텍처
 
@@ -45,7 +46,7 @@ Neon PostgreSQL (sandbox snapshot persistence)
 3. Node runtime의 Neon snapshot adapter와 staging-only 환경 가드 구현
 4. Docker image build와 local health/readiness 검증
 5. Cloudflare Container/Worker dry-run
-6. Cloudflare secret 주입 후 staging deploy
+6. Workers Paid plan 및 Containers 사용 승인을 확인한 뒤 Cloudflare secret 주입 후 staging deploy
 7. `/healthz`, `/readyz`, `#/market`, `#/stocks/005930`, 권한 잠금, SSE를 확인
 8. 실패 시 Cloudflare deployment version을 rollback하고 Neon branch를 보존
 
@@ -59,7 +60,7 @@ Neon PostgreSQL (sandbox snapshot persistence)
 
 ## 미결정
 
-- Cloudflare Container availability/요금/instance limit 승인
+- Cloudflare Workers Paid plan/Containers availability/요금/instance limit 승인
 - 실제 production Worker fetch adapter 또는 managed Node host 선택
 - domain-level PostgreSQL repository와 transaction boundary
 - 실제 provider·auth·payment·법무·RPO/RTO 승인

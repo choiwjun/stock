@@ -8,7 +8,7 @@
 - Neon `stock-research` staging project 생성 완료: `flat-surf-27471705`, AWS Asia Pacific 1 (Singapore)
 - `001_initial.sql` + `002_sandbox_snapshots.sql` 적용 및 public table 25개 확인
 - `NeonSnapshotStore`와 `npm run db:migrate`를 추가하고 실제 Neon save/load smoke test 통과
-- Cloudflare Container Wrangler 설정 dry-run 통과. 실제 image build/deploy는 현재 로컬 Rancher Desktop Docker daemon 미기동으로 대기 중
+- Cloudflare Container Wrangler 설정 dry-run 통과. Rancher Desktop WSL Docker daemon을 명시해 local image build와 Worker upload까지 시도했으나, account가 Workers Free plan이라 Containers API가 `requires the Workers Paid plan`으로 거부했다. staging URL/secret injection은 아직 완료하지 않았다.
 - production 전환은 실제 provider/auth/payment/domain repository/법무 승인 전 차단
 
 ## 이번 구현에서 검증한 범위
