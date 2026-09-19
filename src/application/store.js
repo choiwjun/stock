@@ -169,9 +169,8 @@ export class DemoStore {
       if (latest?.epoch === 1 && sequence < latest.sequence) failSnapshot();
     }
 
-    const restoredOutbox = new OutboxQueue({ now: this.outbox.now, retryBaseMs: this.outbox.retryBaseMs, maxAttempts: this.outbox.maxAttempts, leaseMs: this.outbox.leaseMs });
     try {
-      restoredOutbox.restore(snapshot.outbox);
+      this.outbox.restore(snapshot.outbox);
     } catch {
       failSnapshot();
     }
@@ -186,7 +185,6 @@ export class DemoStore {
     this.signalRevisions = signalRevisions;
     this.paymentEvents = paymentEvents;
     this.providerRevisions = providerRevisions;
-    this.outbox = restoredOutbox;
     return this.snapshot();
   }
 

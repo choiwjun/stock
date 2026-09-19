@@ -509,8 +509,8 @@ function startStream(request, res, id) {
   }
   ensureTickerStream(ticker);
 
-  request.on("close", () => closeStreamClient(client));
   res.on("close", () => closeStreamClient(client));
+  return new Promise((resolve) => res.on("close", resolve));
 }
 
 async function api(request, res, id) {

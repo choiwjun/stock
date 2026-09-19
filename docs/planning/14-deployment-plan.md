@@ -7,8 +7,16 @@
 - **Cloudflare 시도:** Container는 Workers Paid가 필요해 중단했으며, 실패한 `stock-research` Worker도 삭제했다. 현재 활성 staging URL은 없다.
 - **다음 방향:** Vercel + Supabase 전환을 사용자 방향으로 채택한다. 초기 REST handler·snapshot adapter·RLS migration은 구현했으며, 실제 project/Realtime provisioning과 staging 검증은 승인·인증 후 진행한다.
 - **환경:** production이 아닌 fixture 기반 검증용 staging/sandbox
-- **현재 실행 상태:** Vercel CLI 로그인 완료. Supabase `tapnpazwxxatnmswanib`(ap-northeast-2)에 migration 001–003 적용 완료. 직접 `db.*` 연결은 IPv6-only라 Supavisor pooler(`aws-0-ap-northeast-2.pooler.supabase.com:5432`, user `postgres.<ref>`)를 `SUPABASE_DATABASE_URL`로 사용한다. `https://stock-liard-one.vercel.app`에 배포했고 `/healthz`·`/readyz`·REST 계약을 검증했다. Supabase CLI는 현재 WSL의 `linux-x64` 바이너리 패키지를 제공하지 않아 migration은 `postgres` 드라이버 경로를 유지한다.
+- **현재 실행 상태:** Vercel CLI 로그인 완료. Supabase `tapnpazwxxatnmswanib`(ap-northeast-2)에 migration 001–003 적용 완료. 직접 `db.*` 연결은 IPv6-only라 Supavisor pooler(`aws-0-ap-northeast-2.pooler.supabase.com:5432`, user `postgres.<ref>`)를 `SUPABASE_DATABASE_URL`로 사용한다. `https://stock-liard-one.vercel.app`에 배포했고 `/healthz`·`/readyz`·REST·SSE 계약을 검증했다. Supabase CLI는 현재 WSL의 `linux-x64` 바이너리 패키지를 제공하지 않아 migration은 `postgres` 드라이버 경로를 유지한다.
 - **주의:** 순수 `api/` 함수에서 `[...path]` catch-all은 단일 세그먼트만 매칭된다(Next.js 전용 동작). `vercel.json`이 `/api/(.*)`와 probe 경로를 `/api/handler`로 rewrite하고, 함수는 원래 request path를 그대로 받는다.
+
+## 검증 증거 (2026-09-19 staging)
+
+- `NODE_ENV=development`(sandbox 모드)를 Vercel env로 주입해 demo session/checkout/webhook/entitlement 흐름을 배포 환경에서 검증했다.
+- SSE 라이브 tick: stream handler가 `res` close까지 pending해야 함수 인스턴스가 깨어나 `setInterval` tick이 동작한다. snapshot 복원이 `store.outbox`를 교체하던 버그(워커가 stale queue를 폴링해 publish가 영구 정지)를 수정했다. 복원된 PENDING backlog는 연결된 클라이언트로 drain되며 checkpoint는 publish 순서로 전진한다.
+- 세션은 sandbox snapshot에 포함하지 않으므로 cold start·인스턴스 전환마다 재로그인이 필요하다. `signal.changed`는 인스턴스 간 shared-state 없이 각 인스턴스의 복원 상태에서만 나온다 — staging 전용 한계이며, production 스트림은 Supabase Realtime 직접 구독 결정과 함께 재검토한다.
+- snapshot은 단일 row last-writer-wins라 다중 인스턴스 동시 mutate 시 상태가 덮일 수 있다. 데모 검증용으로 허용하며 production read/write 경로는 실제 domain schema로 대체한다.
+- `/internal/metrics`는 `INTERNAL_METRICS_TOKEN`(Vercel env, `.env.local` 동일 값)으로 접근하며 미인증은 401이다.
 
 ## 목표 아키텍처
 
@@ -67,7 +75,7 @@ Supabase Realtime (stream event source)
 ## 미결정
 
 - Supabase project/region과 무료·유료 사용 한도
-- staging SSE compatibility path의 실행시간·동시성 한계와 production stream host/Realtime 전환 여부
+- staging SSE compatibility는 pending handler + outbox 복원 수정으로 동작 검증됨(2026-09-19). stream 장기 유지 상한과 production stream host/Realtime 전환 여부는 미결정
 - Vercel 함수 runtime과 최대 실행/stream 시간, reconnect 정책
 - Supabase Auth 도입 시점과 demo auth의 교체 범위
 - RLS 정책, server-only secret, backup/PITR, RPO/RTO
