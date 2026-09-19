@@ -22,10 +22,10 @@ Supabase project/region, connection pooler, RLS, backup/PITR, secret manager 경
 
 ```bash
 # 승인된 secret manager에서만 주입; 값은 셸·로그에 출력하지 않는다.
-SUPABASE_DATABASE_URL='(secret manager에서 주입)' npm run db:migrate
+SUPABASE_DATABASE_URL='(secret manager에서 주입)' npm run db:migrate:supabase
 ```
 
-- migration은 `db/migrations/001_initial.sql`과 staging 전용 snapshot migration을 적용하고 table·RLS·제약 invariant를 확인한다.
+- migration은 `db/migrations/001_initial.sql`, staging 전용 snapshot migration, `003_supabase_staging_rls.sql`을 적용하고 table·RLS·제약 invariant를 확인한다.
 - Supabase Realtime 이벤트는 순서·중복·gap·재연결·권한 회수와 함께 검증한다.
 - 이 절차는 Supabase project가 생성되고 migration runner가 전환된 뒤 활성화한다.
 

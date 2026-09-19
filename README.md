@@ -23,7 +23,9 @@ npm run security
 npm test
 ```
 
-현재 Neon staging은 폐기했습니다. 다음 DB 전환은 Supabase staging 계획 승인 후 진행하며, connection string과 `service_role` key는 secret manager 또는 Vercel server-side 환경변수로만 주입합니다. 현재 `npm run db:migrate`는 Neon adapter를 가리키므로 Supabase adapter 승인·구현 전에는 실행하지 않습니다.
+Vercel staging은 `api/handler.js` 함수와 `vercel.json` rewrite로 기존 Node HTTP handler를 연결하며, Supabase server-only credentials가 설정된 경우 snapshot persistence를 사용합니다. Vercel/Supabase 계정 인증과 project provisioning 전에는 실제 deploy를 실행하지 않습니다.
+
+현재 Neon staging은 폐기했습니다. 다음 DB 전환은 Supabase staging 계획 승인 후 진행하며, connection string과 `service_role` key는 secret manager 또는 Vercel server-side 환경변수로만 주입합니다. 승인된 Supabase DB에만 `SUPABASE_DATABASE_URL=... npm run db:migrate:supabase`를 실행하며, 기존 `npm run db:migrate`는 Neon 호환 경로로 보존합니다.
 
 `npm run security`는 저장소에서 고신뢰 비밀 패턴을 탐지하지만, 실제 secrets manager·dependency/container scan을 대체하지 않습니다.
 

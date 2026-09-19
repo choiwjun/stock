@@ -5,8 +5,10 @@
 - **이전 staging:** Neon `stock-research` 프로젝트는 삭제 처리했고 로컬 connection string도 삭제했다. Neon control-plane 복구 유예 기간은 2026-09-26까지다.
 - **보존 범위:** 기존 Neon `shiftnote-poc`·`sujibgi` 프로젝트는 변경하지 않았다.
 - **Cloudflare 시도:** Container는 Workers Paid가 필요해 중단했으며, 실패한 `stock-research` Worker도 삭제했다. 현재 활성 staging URL은 없다.
-- **다음 방향:** Vercel + Supabase 전환을 사용자 방향으로 채택한다. 세부 API/realtime/RLS 설계와 구현은 승인 후 진행한다.
+- **다음 방향:** Vercel + Supabase 전환을 사용자 방향으로 채택한다. 초기 REST handler·snapshot adapter·RLS migration은 구현했으며, 실제 project/Realtime provisioning과 staging 검증은 승인·인증 후 진행한다.
 - **환경:** production이 아닌 fixture 기반 검증용 staging/sandbox
+- **현재 실행 상태:** Vercel CLI 로그인 완료. Supabase `tapnpazwxxatnmswanib`(ap-northeast-2)에 migration 001–003 적용 완료. 직접 `db.*` 연결은 IPv6-only라 Supavisor pooler(`aws-0-ap-northeast-2.pooler.supabase.com:5432`, user `postgres.<ref>`)를 `SUPABASE_DATABASE_URL`로 사용한다. `https://stock-liard-one.vercel.app`에 배포했고 `/healthz`·`/readyz`·REST 계약을 검증했다. Supabase CLI는 현재 WSL의 `linux-x64` 바이너리 패키지를 제공하지 않아 migration은 `postgres` 드라이버 경로를 유지한다.
+- **주의:** 순수 `api/` 함수에서 `[...path]` catch-all은 단일 세그먼트만 매칭된다(Next.js 전용 동작). `vercel.json`이 `/api/(.*)`와 probe 경로를 `/api/handler`로 rewrite하고, 함수는 원래 request path를 그대로 받는다.
 
 ## 목표 아키텍처
 
@@ -48,7 +50,7 @@ Supabase Realtime (stream event source)
 2. Supabase project/region과 staging secret 경계 승인
 3. PostgreSQL migration 및 RLS 적용·invariant 확인
 4. Vercel route handler와 기존 REST/permission/freshness 계약 연결
-5. Realtime 직접 구독 또는 SSE compatibility adapter 구현·결정
+5. staging 1차는 SSE compatibility adapter를 구현하고, Vercel 실행시간·동시성 한계를 검증한다. 장기 multi-instance stream은 Supabase Realtime 직접 구독을 별도 결정한다.
 6. Vercel preview/staging 배포 및 환경변수 주입
 7. `/healthz`, `/readyz`, 대표 market/stock route, 권한 잠금, stream을 확인
 8. DB persistence, reconnect/resync, rollback, secret rotation 증거를 기록
@@ -65,7 +67,7 @@ Supabase Realtime (stream event source)
 ## 미결정
 
 - Supabase project/region과 무료·유료 사용 한도
-- Supabase Realtime을 브라우저가 직접 구독할지 기존 SSE endpoint를 유지할지
+- staging SSE compatibility path의 실행시간·동시성 한계와 production stream host/Realtime 전환 여부
 - Vercel 함수 runtime과 최대 실행/stream 시간, reconnect 정책
 - Supabase Auth 도입 시점과 demo auth의 교체 범위
 - RLS 정책, server-only secret, backup/PITR, RPO/RTO

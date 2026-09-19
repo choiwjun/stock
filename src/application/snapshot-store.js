@@ -6,6 +6,7 @@ import { AuditLog } from "./audit.js";
 export class FileSnapshotStore {
   constructor({ path = null } = {}) {
     this.path = typeof path === "string" && path.length > 0 ? path : null;
+    this.kind = "file-sandbox";
     this.writeChain = Promise.resolve();
   }
 

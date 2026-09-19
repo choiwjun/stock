@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    { "source": "/healthz", "destination": "/api/handler" },
+    { "source": "/readyz", "destination": "/api/handler" },
+    { "source": "/internal/metrics", "destination": "/api/handler" },
+    { "source": "/api/(.*)", "destination": "/api/handler" }
+  ]
+}

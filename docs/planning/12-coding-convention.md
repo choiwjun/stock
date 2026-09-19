@@ -93,6 +93,7 @@ src/
 - 이벤트: 중복·역순·gap·replay 만료·epoch·재시작
 - 결제: 서명·idempotency·pending·환불·역순·권위 재조회
 - UI/E2E: P0 6개 경로, 반응형, 키보드·스크린리더 핵심 작업
+- HTTP process-spawn 회귀는 고정 포트·startup timeout 경합을 피하기 위해 `npm test`에서 Node test concurrency 1로 실행한다.
 
 ## 10. 도구 기준
 

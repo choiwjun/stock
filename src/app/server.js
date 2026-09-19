@@ -13,8 +13,7 @@ import { FixedWindowRateLimiter, isAllowedOrigin, normalizeOrigin, normalizeRequ
 import { SESSION_TTL_MS, SessionStore, parseCookies, serializeSessionCookie, sessionCookieName } from "../application/session.js";
 import { MetricsRegistry } from "../application/metrics.js";
 import { createMarketProvider } from "../application/market-provider.js";
-import { FileSnapshotStore } from "../application/snapshot-store.js";
-import { NeonSnapshotStore } from "../application/neon-snapshot-store.js";
+import { createSnapshotStore } from "../application/snapshot-store-factory.js";
 import { validateCheckout, validateDemoSession, validateIdempotencyKey, validatePaymentWebhook, validateScreenerQuery, validateSearchQuery, validateWatchlistMutation } from "../application/validation.js";
 import { ENTITLEMENT } from "../domain/constants.js";
 import { entitlementForSubscription, shouldRevokeEntitlement } from "../domain/subscription.js";
@@ -77,15 +76,13 @@ const streamOutboxWorker = new OutboxWorker({
     METRICS.increment("stream_event_published_total", { transport: "sse" });
   },
 });
-const configuredOrigin = process.env.APP_ORIGIN || (PRODUCTION ? "" : `http://localhost:${PORT}`);
+const configuredOrigin = process.env.APP_ORIGIN || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : (PRODUCTION ? "" : `http://localhost:${PORT}`));
 const normalizedOrigin = normalizeOrigin(configuredOrigin);
 const originAllowlistConfigured = Boolean(normalizedOrigin);
 const allowedOrigins = PRODUCTION
   ? new Set(normalizedOrigin ? [normalizedOrigin] : [])
   : new Set([normalizedOrigin, normalizeOrigin(`http://localhost:${PORT}`), normalizeOrigin(`http://127.0.0.1:${PORT}`)].filter(Boolean));
-const snapshotStore = process.env.NEON_DATABASE_URL || process.env.DATABASE_URL
-  ? new NeonSnapshotStore({ connectionString: process.env.NEON_DATABASE_URL || process.env.DATABASE_URL })
-  : new FileSnapshotStore({ path: process.env.STORE_SNAPSHOT_PATH });
+const snapshotStore = await createSnapshotStore();
 const loadedSnapshot = await snapshotStore.load(store, { auditLog: AUDIT });
 if (loadedSnapshot.loaded) console.log("Loaded sandbox store snapshot");
 
@@ -149,7 +146,7 @@ function readiness() {
     },
     persistence: {
       status: snapshotStore.enabled ? "ready" : (PRODUCTION ? "not_ready" : "sandbox"),
-      kind: snapshotStore instanceof NeonSnapshotStore ? "neon-sandbox" : "file-sandbox",
+      kind: snapshotStore.kind,
     },
   };
   const reasons = [];
@@ -828,22 +825,31 @@ async function staticFile(request, res) {
   }
 }
 
-const server = createServer(async (request, res) => {
+let runtimeStarted = false;
+function ensureRuntimeStarted() {
+  if (runtimeStarted) return;
+  runtimeStarted = true;
+  streamOutboxWorker.start(OUTBOX_WORKER_INTERVAL_MS, 50);
+}
+
+export async function handleRequest(request, res) {
   const id = requestId(request);
   const startedAt = Date.now();
   const path = new URL(request.url || "/", "http://localhost").pathname;
+  const probePath = path.startsWith("/api/") ? path.slice(4) : path;
   try {
+    ensureRuntimeStarted();
     const origin = request.headers.origin;
     if (!isAllowedOrigin(origin, allowedOrigins)) {
       recordAudit(request, id, { action: "ORIGIN_REJECTED", resourceType: "request", resourceId: path, actorType: "system", actorId: "edge" });
       return error(res, 403, "ORIGIN_REJECTED", "허용되지 않은 요청 출처입니다.", id);
     }
-    if (path === "/healthz" && (request.method === "GET" || request.method === "HEAD")) return json(res, 200, { status: "ok", service: "stock-research-demo" }, id);
-    if (path === "/readyz" && (request.method === "GET" || request.method === "HEAD")) {
+    if (probePath === "/healthz" && (request.method === "GET" || request.method === "HEAD")) return json(res, 200, { status: "ok", service: "stock-research-demo" }, id);
+    if (probePath === "/readyz" && (request.method === "GET" || request.method === "HEAD")) {
       const state = readiness();
       return json(res, state.status === "ready" ? 200 : 503, state, id);
     }
-    if (path === "/internal/metrics" && request.method === "GET") {
+    if (probePath === "/internal/metrics" && request.method === "GET") {
       const expectedToken = process.env.INTERNAL_METRICS_TOKEN;
       if (PRODUCTION && !metricsTokenConfigured) return error(res, 503, "METRICS_NOT_CONFIGURED", "운영 metrics 접근 토큰이 설정되지 않았습니다.", id);
       if (metricsTokenConfigured && request.headers["x-metrics-token"] !== expectedToken) return error(res, 401, "AUTH_REQUIRED", "metrics 접근 권한이 필요합니다.", id);
@@ -851,7 +857,7 @@ const server = createServer(async (request, res) => {
       return res.end(METRICS.toPrometheus());
     }
     if (path.startsWith("/api/")) {
-      const limit = RATE_LIMITER.consume(`${request.socket.remoteAddress || "unknown"}:${path}`);
+      const limit = RATE_LIMITER.consume(`${request.socket?.remoteAddress || request.headers["x-forwarded-for"] || "unknown"}:${path}`);
       if (!limit.allowed) {
         recordAudit(request, id, { action: "RATE_LIMITED", resourceType: "request", resourceId: path, actorType: "system", actorId: "edge" });
         res.setHeader("retry-after", Math.max(1, Math.ceil((limit.resetAt - Date.now()) / 1000)));
@@ -870,12 +876,15 @@ const server = createServer(async (request, res) => {
     METRICS.increment("http_requests_total", { method: request.method || "GET", path, status: res.statusCode || 500 });
     METRICS.observe("http_request_duration_ms", Date.now() - startedAt, { path });
   }
-});
+}
 
-server.listen(PORT, () => {
-  streamOutboxWorker.start(OUTBOX_WORKER_INTERVAL_MS, 50);
-  console.log(`Stock research demo listening on http://localhost:${PORT}`);
-});
+const server = process.env.VERCEL === "1" ? null : createServer(handleRequest);
+if (server) {
+  server.listen(PORT, () => {
+    ensureRuntimeStarted();
+    console.log(`Stock research demo listening on http://localhost:${PORT}`);
+  });
+}
 
 let shuttingDown = false;
 async function shutdown() {
@@ -884,7 +893,7 @@ async function shutdown() {
   streamOutboxWorker.stop();
   await streamOutboxWorker.waitForIdle();
   for (const client of openStreams) client.res.end();
-  server.close(async () => {
+  const finish = async () => {
     try {
       const result = await persistSnapshot();
       if (result.saved) console.log("Saved sandbox store snapshot");
@@ -893,7 +902,9 @@ async function shutdown() {
       console.error(JSON.stringify({ error: cause.message, code: cause.code || "SNAPSHOT_SAVE_FAILED" }));
       process.exit(1);
     }
-  });
+  };
+  if (server) server.close(() => { void finish(); });
+  else await finish();
 }
 
-process.on("SIGTERM", () => { void shutdown(); });
+if (server) process.on("SIGTERM", () => { void shutdown(); });

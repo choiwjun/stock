@@ -25,6 +25,7 @@
 | DEC-019 | staging 배포 대상 | Neon 신규 프로젝트 `stock-research`(project `flat-surf-27471705`)를 생성하고, 기존 `market-dashboard` Pages 프로젝트는 보존한다. 단기 검증은 Cloudflare Container + Node sandbox runtime을 사용하며 Neon JSON snapshot은 staging 전용으로 제한한다 | 폐기 (DEC-021로 대체) | 프로젝트를 삭제했고 Cloudflare Containers도 Workers Paid blocker로 중단했다. 실제 provider·auth·payment·domain repository가 승인되기 전 production 배포를 금지한다 | 기술/운영 |
 | DEC-020 | Cloudflare plan gate | Workers Free plan에서는 Cloudflare Containers API가 차단되므로, Workers Paid plan 및 비용/instance limit 승인 전에는 staging URL을 발행하거나 static Pages로 우회하지 않는다 | 보류 (Cloudflare 계정) | local Docker image build와 Wrangler Worker upload는 가능했지만 `/containers/me`가 `Unauthorized: ... requires the Workers Paid plan`으로 거부됨 | 기술/운영 |
 | DEC-021 | Neon staging 폐기 및 다음 배포 방향 | 신규 Neon `stock-research` staging은 삭제하고, 다음 검증 스택은 Vercel + Supabase를 우선 검토한다. REST·권한·freshness·cursor 계약은 유지하며 Realtime 직접 구독과 SSE compatibility adapter 중 하나를 구현 전에 승인한다 | 제안 (세부 승인 대기) | Cloudflare Containers의 Paid plan blocker를 피하고 Vercel serverless/Supabase managed Postgres·Realtime 조합을 검토한다. 기존 `shiftnote-poc`·`sujibgi`는 보존 | 제품/기술 |
+| DEC-022 | 초기 stream transport | 기존 클라이언트·API 계약을 보존하기 위해 staging 1차 구현은 Vercel catch-all handler의 SSE compatibility path로 진행한다. Vercel 실행시간·동시성·재연결 한계를 검증하고, 장기 multi-instance realtime은 Supabase Realtime 직접 구독 또는 별도 stream host로 재검토한다 | 승인 (사용자 진행 지시, staging 한정) | `streamKey/epoch/sequence`, cursor, replay/resync, entitlement revoke 계약을 우선 보존한다. 이 결정은 production SSE 지속성을 보장하지 않으며 STREAM-002의 검증을 차단 조건으로 둔다 | 제품/기술 |
 
 ## 결정 등록 규칙
 

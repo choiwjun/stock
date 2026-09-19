@@ -135,6 +135,38 @@
 - 차단: 현재 fixture provider·demo auth·sandbox payment를 production으로 승격하지 않음. Cloudflare Pages `market-dashboard`와 기존 Neon 프로젝트는 대상에서 제외
 - 선행: DATA-002, AUTH-001, OPS-001의 sandbox 증거, Supabase project provisioning과 Realtime/SSE 결정
 
+### DATA-003 — Supabase snapshot persistence + RLS vertical slice
+
+- 연결: `09-database-design`, `10-security-privacy-compliance`, `14-deployment-plan`, DATA-002, Gate F
+- 범위: Supabase staging migration, `sandbox_snapshots` persistence adapter, service-role-only access, save/load/restart evidence
+- 완료: migration idempotency, snapshot save/load, missing-row no-fabrication, browser role denial, secret scan
+- 차단: Supabase project/region과 server-only secret 승인 전 실제 DB 적용 금지
+- 상태: adapter·RLS migration·unit tests 구현, 실제 Supabase staging 미생성
+
+### API-003 — Vercel serverless REST compatibility vertical slice
+
+- 연결: `08-api-data-contract`, `14-deployment-plan`, SLICE-001, DATA-003, Gate F
+- 범위: 기존 Node request handler를 Vercel catch-all function으로 연결하고 health/readiness, market, stock, auth/permission REST 계약을 유지
+- 완료: Node listener 미기동, request/trace ID, origin/rate limit, representative API contract, cold-start smoke test
+- 선행: PLAN-001, DATA-003의 adapter 계약
+- 상태: catch-all handler와 health test 구현, 실제 Vercel preview 미검증
+
+### STREAM-002 — Vercel/Supabase realtime compatibility
+
+- 연결: `08-api-data-contract` stream section, SIG-001, OPS-002, Gate F
+- 범위: 기존 `streamKey/epoch/sequence`, cursor, replay/resync, entitlement revoke를 Vercel/Supabase stream path에 연결. Vercel 실행시간 한도와 reconnect 정책을 명시
+- 완료: 중복·역순·gap·재연결·권한 회수·stale 상태 테스트 및 브라우저 E2E 증거
+- 선행: API-003, DATA-003, SIG-001
+- 상태: DEC-022에 따라 staging SSE compatibility path와 로컬 reconnect/replay/resync·cursor·entitlement revoke 테스트를 구현했다. 실제 Vercel 실행시간·동시성·multi-instance stream은 staging project 인증 후 검증해야 하며, 장기 Supabase Realtime/stream host 전환은 미결정이다.
+
+### OPS-003 — Vercel + Supabase staging release
+
+- 연결: `14-deployment-plan`, OPS-002, DATA-003, API-003, STREAM-002, Gate F
+- 범위: Vercel project 연결, Supabase secret/RLS/migration, preview/staging 배포, rollback·observability·persistence 검증
+- 완료: staging URL의 health/API/UI/auth/watchlist/stream, Neon/Cloudflare 잔여 리소스 비변경, secret rotation runbook
+- 선행: DATA-003, API-003, STREAM-002, Vercel/Supabase account authentication
+- 상태: 계정 인증·Supabase project provisioning blocker
+
 ### QA-001 — P0 전체 회귀·접근성
 
 - 연결: PRD-001~011, 모든 flow/화면, Gate F

@@ -18,6 +18,7 @@ function snapshotError(code, cause) {
 export class NeonSnapshotStore {
   constructor({ connectionString = process.env.NEON_DATABASE_URL || process.env.DATABASE_URL, snapshotKey = process.env.NEON_SNAPSHOT_KEY || "stock-research-sandbox", sql = null } = {}) {
     this.connectionString = connectionString;
+    this.kind = "neon-sandbox";
     this.snapshotKey = snapshotKey;
     this.sql = sql || (connectionString ? createNeonClient(connectionString) : null);
     this.schemaReady = null;

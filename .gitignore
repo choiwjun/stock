@@ -15,3 +15,5 @@ store.json
 .team/
 .design-check/
 .wrangler/
+.vercel
+.env*

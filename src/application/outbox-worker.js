@@ -110,6 +110,7 @@ export class OutboxWorker {
           })
           .finally(schedule);
       }, intervalMs);
+      this.timer.unref?.();
     };
     schedule();
     return true;

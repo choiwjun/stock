@@ -26,3 +26,9 @@ test("initial migration contains the planning database invariants", async () => 
   }
   assert.doesNotMatch(sql, /access_token|refresh_token|card_number|cvv/i);
 });
+
+test("Supabase staging snapshot migration denies browser roles", async () => {
+  const sql = await readFile(new URL("../db/migrations/003_supabase_staging_rls.sql", import.meta.url), "utf8");
+  assert.match(sql, /ALTER TABLE sandbox_snapshots ENABLE ROW LEVEL SECURITY/);
+  assert.match(sql, /REVOKE ALL ON TABLE sandbox_snapshots FROM anon, authenticated/);
+});
