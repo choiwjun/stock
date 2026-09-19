@@ -180,9 +180,8 @@ PostgreSQL 제약은 종류별 절차를 사용한다. FK/CHECK의 `NOT VALID` �
 
 ## 8. 승인된 staging 연결
 
-- Neon project: `stock-research` (`flat-surf-27471705`)
-- Region: AWS Asia Pacific 1 (Singapore)
-- Branch/database: `production` / `neondb`
-- `001_initial.sql`과 staging 전용 `002_sandbox_snapshots.sql`을 적용했고 public table 25개를 확인했다.
-- 현재 애플리케이션은 아직 domain table을 직접 사용하는 repository가 아니므로, staging persistence adapter가 추가되기 전까지 DB migration 적용은 계약 검증 증거로만 취급한다.
-- connection string과 password는 문서·Git·로그에 기록하지 않는다.
+- 이전 Neon `stock-research` 프로젝트(`flat-surf-27471705`)는 삭제했다. 기존 `shiftnote-poc`·`sujibgi`는 범위 밖이다.
+- 다음 staging DB는 Supabase PostgreSQL로 생성하며 project/region, pooler, RLS, backup/PITR은 별도 승인한다.
+- `001_initial.sql`과 staging 전용 `002_sandbox_snapshots.sql`은 Supabase 호환성·RLS 검증을 거쳐 적용한다.
+- 현재 애플리케이션은 아직 domain table을 직접 사용하는 repository가 아니므로, Supabase persistence adapter가 추가되기 전까지 migration은 계약 검증 자산으로만 취급한다.
+- connection string, password, `service_role` key는 문서·Git·로그·브라우저에 기록하지 않는다.

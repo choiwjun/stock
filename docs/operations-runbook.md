@@ -12,17 +12,22 @@ npm test
 
 실패한 검사를 무시하고 배포하지 않는다. `npm run measure` 결과는 현재 실행 환경의 참고값이며 승인된 SLO가 아니다.
 
-## 2. Neon staging 확인
+## 2. Supabase staging 확인
 
-현재 staging DB는 Neon 프로젝트 `stock-research`(`flat-surf-27471705`, AWS Asia Pacific 1 Singapore)의 `production` branch / `neondb`다. connection string은 `DATABASE_URL` 또는 Cloudflare secret으로만 전달하고 로그·Git·문서에 기록하지 않는다.
+현재 활성 staging DB는 없다. 이전 Neon `stock-research` 프로젝트는 Vercel + Supabase 전환에 따라 삭제했고, 기존 `shiftnote-poc`·`sujibgi`는 이 서비스의 대상이 아니다.
+
+Supabase project/region, connection pooler, RLS, backup/PITR, secret manager 경계가 승인된 뒤에만 staging을 생성한다. connection string과 `service_role` key는 Vercel server-side environment variable로만 주입하며 로그·Git·브라우저에 기록하지 않는다.
+
+예정 절차:
 
 ```bash
-DATABASE_URL='(secret manager에서 주입)' npm run db:migrate
+# 승인된 secret manager에서만 주입; 값은 셸·로그에 출력하지 않는다.
+SUPABASE_DATABASE_URL='(secret manager에서 주입)' npm run db:migrate
 ```
 
-- migration은 `db/migrations/001_initial.sql`을 적용하고 public table 수·제약 불변식을 확인한다.
-- 현재 migration은 논리 모델 검증용이며, domain-level production repository·backup·PITR 승인 전에는 production 데이터 저장소로 간주하지 않는다.
-- Neon project/branch 삭제·reset은 snapshot과 migration evidence를 보존한 뒤 별도 승인한다.
+- migration은 `db/migrations/001_initial.sql`과 staging 전용 snapshot migration을 적용하고 table·RLS·제약 invariant를 확인한다.
+- Supabase Realtime 이벤트는 순서·중복·gap·재연결·권한 회수와 함께 검증한다.
+- 이 절차는 Supabase project가 생성되고 migration runner가 전환된 뒤 활성화한다.
 
 ## 3. 기동·상태 확인
 

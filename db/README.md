@@ -10,4 +10,4 @@
 - 결제 이벤트는 검증된 최소 필드와 `payload_hash`로 동일 event ID의 payload 충돌을 판정하며, 원문 provider payload를 무제한 저장하지 않습니다.
 - `security_type`, 가격·보존·RPO/RTO·provider 정책은 아직 출시 승인 전입니다.
 
-운영 적용 전에는 반드시 expand → backfill/verify → switch → contract 절차와 staging 복구 리허설을 수행해야 합니다. Neon staging migration은 `DATABASE_URL npm run db:migrate`로 적용하며, production domain repository·백업·PITR 승인을 대체하지 않습니다.
+운영 적용 전에는 반드시 expand → backfill/verify → switch → contract 절차와 staging 복구 리허설을 수행해야 합니다. 이전 Neon staging은 삭제했으며, 현재 migration runner는 Neon adapter를 가리킵니다. Supabase 전환 승인 후 runner와 `SUPABASE_DATABASE_URL` 주입 방식을 함께 전환합니다. 이는 production domain repository·백업·PITR 승인을 대체하지 않습니다.

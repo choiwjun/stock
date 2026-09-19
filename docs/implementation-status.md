@@ -5,10 +5,10 @@
 ## 배포 진행 상태
 
 - GitHub `main` baseline push 완료: `8ecf79a` 및 deployment ignore 보완 `76d0661`
-- Neon `stock-research` staging project 생성 완료: `flat-surf-27471705`, AWS Asia Pacific 1 (Singapore)
-- `001_initial.sql` + `002_sandbox_snapshots.sql` 적용 및 public table 25개 확인
-- `NeonSnapshotStore`와 `npm run db:migrate`를 추가하고 실제 Neon save/load smoke test 통과
-- Cloudflare Container Wrangler 설정 dry-run 통과. Rancher Desktop WSL Docker daemon을 명시해 local image build와 Worker upload까지 시도했으나, account가 Workers Free plan이라 Containers API가 `requires the Workers Paid plan`으로 거부했다. staging URL/secret injection은 아직 완료하지 않았다.
+- Neon `stock-research` staging project(`flat-surf-27471705`)는 Vercel + Supabase 전환 결정에 따라 삭제 처리했으며, 로컬 connection string도 제거했다. Neon control-plane 복구 유예 기간은 2026-09-26까지다. 기존 `shiftnote-poc`·`sujibgi`는 보존했다.
+- 삭제 전 `001_initial.sql` + `002_sandbox_snapshots.sql` 적용, public table 25개, save/load smoke test를 확인했다. `NeonSnapshotStore`와 migration 코드는 전환 작업의 역사적 검증 자산으로 남아 있으며 Supabase adapter로 교체하기 전에는 active staging으로 사용하지 않는다.
+- Cloudflare Container Wrangler dry-run과 local image build는 통과했지만 Workers Free plan에서 Containers API가 `requires the Workers Paid plan`으로 거부됐다. 실패한 Worker는 삭제했고 staging URL/secret injection은 없다.
+- 다음 배포 방향은 Vercel + Supabase이며, route handler·Realtime/SSE·RLS 설계 승인 전에는 구현하지 않는다.
 - production 전환은 실제 provider/auth/payment/domain repository/법무 승인 전 차단
 
 ## 이번 구현에서 검증한 범위

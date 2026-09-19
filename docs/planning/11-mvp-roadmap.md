@@ -55,11 +55,11 @@
 
 ## 5. Phase 1.5 — Staging 배포·복구 증거
 
-**현재 상태:** Neon `stock-research` 프로젝트를 AWS Singapore에 생성하고 `001_initial.sql`을 적용했다. GitHub `main` baseline도 push했다. Cloudflare Container 배포는 Node runtime 호환성·Neon snapshot adapter·secret 주입을 검증한 뒤 staging으로만 진행한다.
+**현재 상태:** 이전 Neon `stock-research` staging은 삭제했다. 다음 staging은 Vercel + Supabase 방향으로 전환하며, route handler·RLS·Realtime/SSE adapter 설계 승인 전에는 배포하지 않는다.
 
-- Docker/Cloudflare Container에서 `healthz`, `readyz`, 대표 route를 확인한다.
-- Neon connection string은 Cloudflare secret으로만 주입하고 저장소에는 남기지 않는다.
-- staging에서 snapshot save/load, SSE reconnect, 권한 잠금, 로그 마스킹을 확인한다.
+- Vercel에서 `healthz`, `readyz`, 대표 route를 확인한다.
+- Supabase connection string과 `service_role` key는 Vercel server-side secret으로만 주입한다.
+- staging에서 persistence save/load, Realtime reconnect/resync, 권한 잠금, 로그 마스킹을 확인한다.
 - 실제 provider/auth/payment와 production domain repository가 없으면 Gate E/F를 통과시키지 않는다.
 
 **통과 조건:** 배포/롤백/복구 runbook 증거, secret scan, 계약/접근성 회귀, sandbox 제한 표시가 모두 확인됨.

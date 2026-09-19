@@ -127,13 +127,13 @@
 - 완료: 차단 이슈 0 또는 승인된 잔여 위험. 법무·라이선스·보존 증빙 첨부
 - 선행: ENT-001, SUB-001, OPS-001
 
-### OPS-002 — Cloudflare Container + Neon staging 배포
+### OPS-002 — Vercel + Supabase staging 배포
 
 - 연결: `14-deployment-plan`, TRD 배포·운영, DB staging 연결, Gate F
-- 범위: Docker image, Cloudflare Container ingress, Neon secret, snapshot persistence, health/readiness, rollback
-- 완료: `healthz`/`readyz`, 대표 market/stock route, migration invariant, secret scan, 로그 마스킹, staging rollback 증거
-- 차단: 현재 fixture provider·demo auth·sandbox payment를 production으로 승격하지 않음. Cloudflare Pages `market-dashboard`는 대상에서 제외
-- 선행: DATA-002, AUTH-001, OPS-001의 sandbox 증거, Neon project provisioning
+- 범위: Vercel route handler, Supabase migration/RLS, Realtime 또는 SSE adapter, persistence, health/readiness, rollback
+- 완료: `healthz`/`readyz`, 대표 market/stock route, migration·RLS invariant, secret scan, 로그 마스킹, reconnect/resync, staging rollback 증거
+- 차단: 현재 fixture provider·demo auth·sandbox payment를 production으로 승격하지 않음. Cloudflare Pages `market-dashboard`와 기존 Neon 프로젝트는 대상에서 제외
+- 선행: DATA-002, AUTH-001, OPS-001의 sandbox 증거, Supabase project provisioning과 Realtime/SSE 결정
 
 ### QA-001 — P0 전체 회귀·접근성
 
