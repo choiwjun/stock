@@ -1,0 +1,156 @@
+# 13. Implementation Tickets
+
+## 문서 상태
+
+정본 요구사항과 연결된 구현 티켓이다. 기존 `MARKET TAPE`와 `EVIDENCE TAPE` 방향은 baseline으로 구현되었고, `Chainx-inspired EVIDENCE DESK / 다크 투자 리서치 커맨드센터` 방향은 사용자 승인을 받아 새 구현 기준으로 승격했다. 공급자·법무·결제·알고리즘 정책은 별도 출시 blocker로 유지한다. 모든 티켓은 계층별 산출물이 아니라 데모 가능한 수직 slice를 우선한다.
+
+## 1. 추적 규칙
+
+티켓은 최소한 `PRD ID → 화면/flow → API/event → DB → test → release gate`를 연결한다. 공통 인프라 티켓도 사용자 시나리오의 실패 조건을 포함한다.
+
+## 2. 티켓 목록
+
+> 사용자 승인에 따라 아래 리디자인 티켓을 구현 기준으로 확정한다. 출시 blocker는 각 티켓에 별도로 표시한다.
+
+### UI-REDESIGN-001 — `Chainx-inspired EVIDENCE DESK` 시장판·종목 상세 재디자인
+
+- 연결: UX-001~009, PRD-002~005/011, IA 시장, UF-MARKET, WF 시장/종목, `docs/research/stock-design-synthesis`, `06-design-plan`, `06-design-spec`
+- 범위: 상단 market ticker, 데스크톱 sidebar, dark KPI widget grid, Market Pulse, breadth, movers, 근거 표, Stock Identity, Quote Lead, ChartWithTable, Evidence Panels, 모바일 하단 탭
+- 시각 기준: Chainx의 밀도·위젯·차트 toolbar·active state를 참고하되 원본 자산은 복제하지 않으며, 퍼플은 인터랙션에만 사용하고 상승 레드/하락 블루·freshness·근거 표시는 유지
+- 비범위: API shape 변경, 새 DB 엔티티, 주문·계좌·ETF/ETN/펀드, 실제 결제/실제 Premium signal 공개
+- 선행 blocker: 색상·카피·금융 표현 법무 검토
+- baseline 상태: 기존 시장판·대표 종목 상세의 명령 바, market tape, quote strip, 상태 rail, 모바일 하단 탭을 구현하고 320px overflow·권한 잠금·기존 fixture 흐름을 검증했다.
+- 새 구현 상태: 사용자 승인·명세 갱신 완료, 구현 진행 중
+- 완료: 근거 우선 first fold, desktop/mobile 정상·loading·empty·error·stale·permission 상태, WCAG 2.2 AA 수동/자동 검증, 기존 route/API 회귀 통과
+
+### PLAN-001 — 정본·제품·디자인 게이트
+
+- 연결: PRD-001~011, UX-001~006, IA, UF, WF, DS, `06-design-spec`, Gate A
+- 범위: 정본 문서, MVP 제외 범위, 권한 matrix, 표현/고지 승인, `MARKET TAPE` 시각 방향 승인
+- 완료: decision log의 디자인 결정, 승인 디자인 명세, 상태별 프로토타입 경로·추적표. 가격·공급자·법무 등 출시 차단 결정은 별도 선행 조건으로 유지
+- 상태: 기존 `MARKET TAPE`/`EVIDENCE TAPE` baseline은 구현 완료. Chainx-inspired 다크 전환은 사용자 승인 완료·구현 진행 중; 법무·provider·결제 blocker는 출시 전 유지.
+
+### DATA-001 — 종목 마스터·공급자 계약
+
+- 연결: PRD-002~005, API-STOCK, DB-instruments, Gate B
+- 범위: ticker·security type allowlist, 거래 상태, source/asOf, provider adapter
+- 완료: 대표 종목 fixture와 라이선스/SLA 증빙, 지원 제외 케이스 테스트
+
+### SLICE-001 — 대표 종목 탐색·시세 vertical slice
+
+- 연결: PRD-002~005, UF-MARKET, WF-STOCK, API-MARKET/API-STOCK, DB quotes, QA-001
+- 범위: 시장 → 검색 → 상세 → quote/chart/flows/news/financials, loading/empty/error/stale
+- 완료: 데스크톱·모바일·키보드 흐름과 기준 시각/출처 노출
+- 선행: PLAN-001, DATA-001
+
+### DATA-002 — 시세 freshness·read model
+
+- 연결: PRD-005/011, TRD freshness, API quote, DB quotes_current/quote_bars
+- 범위: 수집 지연·provider 오류·stale 판정·read model
+- 완료: 수집/수신/asOf 차이, 부분 장애, 재시작 복구 테스트
+- 선행: DATA-001
+
+### SIG-001 — 신호·이벤트 정본 계약
+
+- 연결: PRD-006/007/011, TRD signal, API signal/event, DB signals/events/revisions
+- 범위: strategy key, 상태 전이, evidence snapshot, streamKey/epoch/sequence, schema
+- 완료: 방향·상태·신선도 분리, 불변성·역순·정정 테스트
+- 선행: PLAN-001
+
+### SIG-002 — 대표 종목 계산·발행 vertical slice
+
+- 연결: PRD-006/007, UF-SIGNAL, WF-SIGNAL, API `/stocks/{ticker}/signals`, DB/outbox
+- 범위: 입력 → 계산 → current/event/revision/evidence → REST → stream
+- 완료: 발생/발행 시각·version·근거·위험 고지, 저장/outbox 원자성, 대표 fixture 재현
+- 선행: DATA-002, SIG-001
+
+### AUTH-001 — 회원·간편로그인·세션
+
+- 연결: PRD-001, UF-AUTH, API auth, DB users/identities
+- 범위: provider adapter, 동의, session rotation/revoke, return URL
+- 완료: 성공·취소·실패·동의 거절·만료·로그아웃·CSRF/Origin 테스트
+- 선행: PLAN-001
+
+### USER-001 — 관심종목 vertical slice
+
+- 연결: PRD-009, UF-WATCHLIST, WF-WATCHLIST, API `/watchlists`, DB watchlists/items
+- 범위: 상세 → 추가 → 목록 재방문 → 삭제, idempotency·ownership
+- 완료: 중복·타인 ID·저장 실패·모바일·empty 테스트
+- 선행: AUTH-001, SLICE-001
+
+### ENT-001 — entitlement·권한 matrix
+
+- 연결: PRD-006/010/011, TRD revoke, API permission, DB entitlements
+- 범위: PUBLIC/MEMBER/REALTIME_SIGNAL, field/filter/sort/aggregation/topic 권한
+- 완료: API·stream·cache·buffer 우회 차단, 타인/만료/disabled 테스트
+- 선행: AUTH-001, SIG-001
+
+### SLICE-002 — 잠금→구독→신호 vertical slice
+
+- 연결: PRD-006/007/010, UF-SUBSCRIPTION, WF-GATE, API subscriptions/entitlements, DB subscriptions
+- 범위: 잠금 미리보기 → checkout sandbox → pending → 활성 → 실제 신호 복귀
+- 완료: payment success와 entitlement 활성 분리, 새로고침/다중 탭/중복 결제 테스트
+- 선행: SIG-002, AUTH-001, ENT-001
+
+### STREAM-001 — snapshot/replay/resync vertical slice
+
+- 연결: PRD-005/006/011, UF-REALTIME, TRD cursor, API stream, DB outbox/checkpoint
+- 범위: subscribe cursor, gap, replay, epoch, stale, reconnect, revoke
+- 완료: replay 만료 시 full snapshot, 열린 연결 premium payload 차단, 지연 측정
+- 선행: SIG-002, ENT-001
+
+### SUB-001 — 결제 생명주기·웹훅
+
+- 연결: PRD-010, UF-SUBSCRIPTION, API webhook, DB payment/subscriptions/entitlements, Gate D
+- 범위: 서명·idempotency·pending·active·cancel·refund·failed·expired·대사
+- 완료: 중복·역순·권위 재조회·권한 회수·runbook 테스트
+- 선행: SLICE-002, provider 결정
+
+### SCREEN-001 — 구조화 조건 스크리너
+
+- 연결: PRD-008, IA screener, API screener, DB/read model
+- 범위: 승인된 조건 메타데이터·query·결과 기준 시각·비용 제한
+- 완료: 조건 오류·빈 결과·stale·rate limit, 자연어/저장 필터 미노출
+- 선행: SLICE-001, 데이터 지표 승인
+
+### OPS-001 — 관측성·운영·복구
+
+- 연결: TRD observability, Security incident, Gate F
+- 범위: 지연·오류·연결·replay·revoke·결제 대시보드/알람, runbook, rollback
+- 완료: 장애 주입과 복구 리허설, RPO/RTO·담당자·고객지원 흐름
+- 선행: DATA-002, SIG-002, STREAM-001, SUB-001
+
+### SEC-001 — 보안·개인정보·법무 릴리즈
+
+- 연결: PRD-001/006/007/010/011, Security, Gate E
+- 범위: ASVS/API review, IDOR, CSRF/Origin, secret/log, 보존·삭제, 표현·라이선스
+- 완료: 차단 이슈 0 또는 승인된 잔여 위험. 법무·라이선스·보존 증빙 첨부
+- 선행: ENT-001, SUB-001, OPS-001
+
+### QA-001 — P0 전체 회귀·접근성
+
+- 연결: PRD-001~011, 모든 flow/화면, Gate F
+- 범위: E2E, contract, event integrity, responsive, keyboard/screen reader, 장애 상태
+- 완료: P0 추적표 전체 통과, 미해결 severity 기준 승인
+- 선행: SLICE-001, USER-001, SLICE-002, STREAM-001, SCREEN-001
+
+## 3. 의존성
+
+```text
+PLAN-001
+  ├─ DATA-001 → DATA-002 → SLICE-001
+  ├─ SIG-001 → SIG-002 ─┐
+  └─ AUTH-001 → ENT-001 ├→ SLICE-002 → SUB-001
+                         └→ STREAM-001
+SLICE-001 + AUTH-001 → USER-001
+DATA/SIG/AUTH/ENT/STREAM/SUB → OPS-001 → SEC-001 → QA-001
+```
+
+## 4. 공통 완료 기준
+
+- 정본 문서와 구현 계약 일치
+- API·DB·UI·테스트를 티켓에서 추적 가능
+- 기준 시각·출처·stale·오류·권한 상태 노출
+- 모바일·키보드·스크린리더 핵심 작업 검증
+- 중복·역순·gap·replay 만료·revoke·웹훅 역순 검증
+- 보안·법무·공급자·운영 블로커가 해결 또는 명시적으로 승인

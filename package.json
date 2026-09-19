@@ -1,0 +1,15 @@
+{
+  "name": "stock-research-platform-demo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node src/app/server.js",
+    "dev": "node --watch src/app/server.js",
+    "measure": "node scripts/measure-demo.js",
+    "security": "node scripts/secret-scan.js",
+    "test": "node --test",
+    "contract": "node -e \"const fs=require('fs'); const doc=JSON.parse(fs.readFileSync('contracts/openapi.json','utf8')); const signal=JSON.parse(fs.readFileSync('contracts/signal-event.schema.json','utf8')); if (!doc.openapi || !doc.paths || signal.type !== 'object' || !Array.isArray(signal.required)) process.exit(1); console.log('OpenAPI and signal event contracts ok')\"",
+    "check": "node --check scripts/measure-demo.js && node --check scripts/secret-scan.js && node --check src/app/server.js && node --check src/application/audit.js && node --check src/application/list-cursor.js && node --check src/application/market-provider.js && node --check src/application/metrics.js && node --check src/application/outbox.js && node --check src/application/outbox-worker.js && node --check src/application/security.js && node --check src/application/session.js && node --check src/application/snapshot-store.js && node --check src/application/store.js && node --check src/application/validation.js && node --check src/domain/cursor.js && node --check src/domain/fixtures.js && node --check src/domain/subscription.js && node --check src/domain/watchdog.js && node --check public/app.js && node --check public/cursor.js && npm run contract"
+  }
+}

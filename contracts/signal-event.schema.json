@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://signal-lab.invalid/contracts/signal-event.schema.json",
+  "title": "Signal event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "eventId",
+    "streamKey",
+    "epoch",
+    "sequence",
+    "ticker",
+    "strategyKey",
+    "direction",
+    "status",
+    "dataStatus",
+    "strength",
+    "occurredAt",
+    "publishedAt",
+    "asOf",
+    "validUntil",
+    "lastHeartbeatAt",
+    "lastEvaluatedAt",
+    "staleAfter",
+    "healthReason",
+    "algorithmVersion",
+    "evidence",
+    "riskDisclosureId"
+  ],
+  "properties": {
+    "eventId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z0-9._:-]+$" },
+    "streamKey": { "type": "string", "pattern": "^signal:[0-9]{6}:default$" },
+    "epoch": { "type": "integer", "minimum": 1 },
+    "sequence": { "type": "integer", "minimum": 0 },
+    "ticker": { "type": "string", "pattern": "^[0-9]{6}$" },
+    "strategyKey": { "const": "default" },
+    "direction": { "type": "string", "enum": ["BUY", "SELL", "NEUTRAL"] },
+    "status": { "type": "string", "enum": ["ACTIVE", "SUSPENDED", "EXPIRED", "CANCELLED", "VALIDATING"] },
+    "effectiveStatus": { "type": "string", "enum": ["ACTIVE", "SUSPENDED", "EXPIRED", "CANCELLED", "VALIDATING"] },
+    "dataStatus": { "type": "string", "enum": ["REALTIME", "DELAYED", "STALE", "UNAVAILABLE"] },
+    "strength": { "type": "string", "enum": ["LOW", "MEDIUM", "HIGH"] },
+    "occurredAt": { "type": "string", "format": "date-time" },
+    "publishedAt": { "type": "string", "format": "date-time" },
+    "asOf": { "type": "string", "format": "date-time" },
+    "validUntil": { "type": ["string", "null"], "format": "date-time" },
+    "lastHeartbeatAt": { "type": "string", "format": "date-time" },
+    "lastEvaluatedAt": { "type": "string", "format": "date-time" },
+    "staleAfter": { "type": "string", "format": "date-time" },
+    "healthReason": { "type": "string", "minLength": 1, "maxLength": 64 },
+    "algorithmVersion": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["type", "label", "value"],
+        "properties": {
+          "type": { "type": "string", "minLength": 1, "maxLength": 64 },
+          "label": { "type": "string", "minLength": 1, "maxLength": 256 },
+          "value": {}
+        }
+      }
+    },
+    "riskDisclosureId": { "type": "string", "minLength": 1, "maxLength": 128 }
+  }
+}
