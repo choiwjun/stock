@@ -28,7 +28,7 @@ src/
 
 `domain`은 외부 프레임워크와 결합하지 않는다. provider SDK는 adapter 뒤에 둔다. stream gateway와 entitlement 권위 모듈의 계약을 공유한다.
 
-## 3. 프레젠테이션 구현 규칙 — `MARKET TAPE`
+## 3. 프레젠테이션 구현 규칙 — `SIGNALLAB RESEARCH DESK V2`
 
 - 디자인 토큰은 CSS custom property로 중앙화하고 화면별 임의 색상/반경/간격을 만들지 않는다.
 - 시장 의미색은 `rise`, `fall`, `live`, `stale`, `error` 의미 토큰으로만 사용하며 텍스트·기호·수치 부호를 함께 렌더링한다.

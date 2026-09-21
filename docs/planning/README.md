@@ -1,6 +1,6 @@
 # Stock Platform Planning Index
 
-국내 개별주식 리서치·실시간 알고리즘 신호 플랫폼의 **정본 기획 문서**다. `MARKET TAPE`·`EVIDENCE TAPE` baseline 위에 `Chainx-inspired EVIDENCE DESK` 다크 전면 UI/UX 방향을 사용자 승인받아 구현 단계로 진행한다. 구현·디자인·출시 판단은 이 디렉터리의 문서를 기준으로 한다.
+국내 개별주식 리서치·실시간 알고리즘 신호 플랫폼의 **정본 기획 문서**다. 기존 화면 감사를 바탕으로 `SIGNALLAB RESEARCH DESK V2` 프리미엄 금융 리서치 터미널 방향을 사용자 승인받아 구현 단계로 진행한다. 구현·디자인·출시 판단은 이 디렉터리의 문서를 기준으로 한다.
 
 ## 정본 우선순위
 
@@ -24,7 +24,7 @@
 5. [User Flow](./04-user-flow.md)
 6. [Wireframe Specification](./05-wireframe-spec.md)
 7. [Design Plan](./06-design-plan.md)
-8. [Approved Design Specification](./06-design-spec.md)
+8. [Approved Design Specification](./06-design-spec.md) — 구현용 토큰·컴포넌트·상태 계약
 9. [TRD](./07-trd.md)
 10. [API & Data Contract](./08-api-data-contract.md)
 11. [Database Design](./09-database-design.md)

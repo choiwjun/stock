@@ -22,15 +22,13 @@ test("design color tokens meet the approved contrast thresholds", async () => {
   };
   const pairs = [
     ["text", "canvas", 4.5],
-    ["secondary", "raised", 4.5],
-    ["tertiary", "raised", 4.5],
-    ["primary", "raised", 4.5],
-    ["up", "up-bg", 4.5],
-    ["down", "down-bg", 4.5],
-    ["warning", "warning-bg", 4.5],
-    ["error", "error-bg", 4.5],
-    ["info", "info-bg", 4.5],
-    ["focus", "raised", 3],
+    ["muted", "surface-2", 4.5],
+    ["interaction", "canvas", 4.5],
+    ["live", "canvas", 4.5],
+    ["rise", "canvas", 4.5],
+    ["fall", "canvas", 4.5],
+    ["warning", "canvas", 4.5],
+    ["error", "canvas", 4.5],
   ];
   for (const [foreground, background, minimum] of pairs) {
     const ratio = contrastRatio(token(foreground), token(background));

@@ -14,14 +14,16 @@ test("shell exposes keyboard skip navigation and a polite live region", async ()
   assert.match(app, /<main id="main-content"/);
 });
 
-test("market desk shell exposes command navigation and an accessible market tape", async () => {
+test("research desk shell exposes task navigation and an accessible market rail", async () => {
   const app = await asset("app.js");
   const css = await asset("styles.css");
-  assert.match(app, /class="topnav"/);
-  assert.match(app, /class="market-tape"/);
+  assert.match(app, /class="research-shell"/);
+  assert.match(app, /class="sidebar"/);
+  assert.match(app, /class="market-rail/);
   assert.match(app, /aria-label="시장 테이프"/);
-  assert.match(css, /--ink-950/);
-  assert.match(css, /\.market-tape/);
+  assert.match(app, /class="bottom-nav"/);
+  assert.match(css, /--surface-1/);
+  assert.match(css, /\.market-rail/);
 });
 
 test("approved market semantics pair rise and fall colors with text labels", async () => {
@@ -29,8 +31,8 @@ test("approved market semantics pair rise and fall colors with text labels", asy
   const css = await asset("styles.css");
   assert.match(app, /changeLabel\(index\.change\)/);
   assert.match(app, /changeLabel\(quote\.change\)/);
-  assert.match(css, /--rise-700/);
-  assert.match(css, /--fall-700/);
+  assert.match(css, /--rise:/);
+  assert.match(css, /--fall:/);
 });
 
 test("client provides an equivalent table for the SVG chart and status text", async () => {
@@ -85,7 +87,8 @@ test("client separates entitlement revocation from ordinary stream reconnects", 
   assert.match(app, /NON_ACTIONABLE_SIGNAL_STATUSES/);
   assert.match(app, /신호 철회/);
   assert.match(app, /로그인 후 관심종목 추가/);
-  assert.match(app, /data-action="sandbox-login">sandbox 로그인/);
+  assert.doesNotMatch(app, /sandbox 로그인/);
+  assert.doesNotMatch(app, /data-role=/);
   assert.match(app, /session-notice-root/);
   assert.match(app, /세션이 만료되었습니다\. 현재 작업을 유지한 채 다시 로그인해 주세요/);
   assert.match(app, /data-action="sandbox-login">다시 로그인/);
@@ -121,9 +124,9 @@ test("styles include visible focus, reduced motion, mobile reflow, and touch tar
   assert.match(css, /:focus-visible/);
   assert.match(css, /prefers-reduced-motion: reduce/);
   assert.match(css, /@media \(max-width: 420px\)/);
-  assert.match(css, /\.nav-link[^\n]*min-height: 44px/);
-  assert.match(css, /\.topbar-actions \{ width: 100%; flex-wrap: wrap;/);
-  assert.match(css, /\.topbar-actions \.role-switcher \{ flex: 1 0 100%;/);
+  assert.match(css, /\.nav-link[^\n]*min-height: 46px/);
+  assert.match(css, /\.bottom-nav/);
+  assert.match(css, /touch-action|position:\s*sticky/);
 });
 
 test("evidence desk views expose market pulse, movers, and evidence-led stock structure", async () => {
@@ -135,7 +138,7 @@ test("evidence desk views expose market pulse, movers, and evidence-led stock st
   assert.match(app, /class="quote-lead"/);
   assert.match(app, /class="chart-with-table"/);
   assert.match(app, /class="[^"]*\bevidence-grid\b[^"]*"/);
-  assert.match(css, /--canvas: #f5f1e8/);
+  assert.match(css, /--canvas: #080d12/);
   assert.match(css, /\.market-pulse/);
   assert.match(css, /\.quote-lead/);
   assert.match(css, /\.chart-with-table/);
@@ -145,30 +148,29 @@ test("evidence desk labels data status beside the decision context", async () =>
   const app = await asset("app.js");
   assert.match(app, /시장 판독/);
   assert.match(app, /시장 폭/);
-  assert.match(app, /읽을 근거/);
+  assert.match(app, /근거 읽기/);
   assert.match(app, /가격 흐름과 동일한 데이터/);
   assert.match(app, /기준 시각/);
   assert.match(app, /플랫폼 수신/);
 });
 
-test("chainx-inspired desk exposes a dark command workspace without changing evidence semantics", async () => {
+test("research desk exposes a cohesive dark command workspace without changing evidence semantics", async () => {
   const app = await asset("app.js");
   const css = await asset("styles.css");
-  assert.match(app, /class="workspace-command"/);
-  assert.match(app, /data-command="market-status"/);
-  assert.match(css, /--canvas: #080812/);
-  assert.match(css, /--violet-500/);
-  assert.match(css, /\.sidebar[^{]*\{[^}]*display: block/);
-  assert.match(css, /\.workspace-command/);
+  assert.match(app, /class="research-shell"/);
+  assert.match(app, /class="topbar-context"/);
+  assert.match(css, /--canvas: #080d12/);
+  assert.match(css, /--interaction: #a69bff/);
+  assert.match(css, /\.sidebar/);
+  assert.doesNotMatch(app, /class="workspace-command"/);
 });
 
 test("desktop sidebar gives each navigation item a full-width, touch-sized target", async () => {
   const css = await asset("styles.css");
-  assert.match(css, /\.nav-list \{[^}]*gap: 10px/);
+  assert.match(css, /\.nav-list, \.bottom-nav ul \{[^}]*gap: 6px/);
   assert.match(css, /\.nav-link \{[^}]*display: flex/);
-  assert.match(css, /\.nav-link \{[^}]*width: 100%/);
-  assert.match(css, /\.nav-link \{[^}]*min-height: 48px/);
-  assert.match(css, /\.sidebar-brand \{[^}]*margin-bottom: 24px/);
+  assert.match(css, /\.nav-link \{[^}]*min-height: 46px/);
+  assert.match(css, /\.sidebar-brand/);
 });
 
 test("destructive actions use an accessible confirmation sheet instead of a native blocking prompt", async () => {
@@ -180,8 +182,8 @@ test("destructive actions use an accessible confirmation sheet instead of a nati
   assert.match(app, /previouslyFocused/);
   assert.match(app, /event\.key === "Escape"/);
   assert.doesNotMatch(app, /window\.confirm/);
-  assert.match(css, /\.confirm-backdrop/);
   assert.match(css, /\.confirm-sheet/);
+  assert.match(css, /background: rgb\(0 0 0 \/ 65%\)/);
 });
 
 test("stock search exposes a keyboard-selectable combobox and listbox", async () => {

@@ -1,358 +1,114 @@
-# 06a. 승인 디자인 명세
+# 06a. Approved Design Specification
 
 ## 문서 상태
 
-- **상태:** `MARKET TAPE`·`EVIDENCE TAPE` baseline 구현 완료 / `Chainx-inspired EVIDENCE DESK` 다크 대시보드 재설계 사용자 승인 완료
-- **정본 범위:** 기존 API·기능·상태·접근성 계약은 유지한다. 아래 시각 방향·정보 위계·반응형 구조는 승인 후 `public/styles.css`·`public/app.js`에 단일 시스템으로 반영한다.
-- **상위 문서:** [`05-wireframe-spec.md`](./05-wireframe-spec.md), [`06-design-plan.md`](./06-design-plan.md)
-- **관련 요구사항:** `PRD-001`~`PRD-011`, `UF-AUTH`, `WEB-001`, `SIG-001`, `SIG-002`, `ENT-001`, `QA-001`
+- 상태: `SIGNALLAB RESEARCH DESK V2` 전면 리디자인 사용자 승인 / 구현 핸드오프
+- 범위: `public/index.html`, `public/styles.css`, `public/app.js`의 presentation layer 및 화면 상태
+- 비범위: API endpoint, 권한 판정, 데이터 모델, 신호 계산 규칙의 변경
 
-이 문서는 고객용 반응형 웹의 디자인 승인 기준이다. 구현을 시작할 수 있는 시각·상호작용 기준을 제공하지만, 결제·데이터 공급·법무·알고리즘 정책이 승인되었다는 의미는 아니다. 해당 블로커가 해소되기 전 상용 결제와 실제 프리미엄 신호를 공개하지 않는다.
+## 1. Visual direction
 
-## 0. 재설계 승인안
+`SignalLab Research Desk V2`는 어두운 graphite 캔버스 위에 데이터 표면을 층으로 쌓는 프리미엄 금융 리서치 터미널이다. 기존 종이색 화면, 반복 카드, 개발용 sandbox chrome은 제거한다.
 
-기존 명세의 API·권한·신선도·접근성 계약은 보존하고, 아래 시각/레이아웃 제안을 교체 대상으로 둔다. 상세 근거는 [`docs/research/stock-design-synthesis.md`](../research/stock-design-synthesis.md)와 Chainx 벤치마크 분석에 있다.
+- Canvas: `#080D12`
+- Chrome: `#0F171F`
+- Panel: `#151F2A`
+- Raised/hover: `#1C2936`
+- Line: `#2B3B4A`
+- Text: `#F3F6F8`
+- Muted: `#9AAEBD`
+- Interaction: `#A69BFF`
+- Live: `#57D4C9`
+- Rise: `#FF7181` + `상승`/`+`
+- Fall: `#72A9FF` + `하락`/`−`
+- Warning: `#F2B86B`
+- Error: `#FF8278`
 
-- 명칭: `Chainx-inspired EVIDENCE DESK / 다크 투자 리서치 커맨드센터`
-- 셸: 데스크톱 좌측 navigation + 상단 market ticker + compact command cluster; 모바일 하단 탭
-- 첫 화면: `Market Pulse → Movers → Evidence/Flow`를 다크 KPI·위젯 그리드로 재해석
-- 종목 상세: `Stock Identity → Quote Lead → ChartWithTable → Evidence Panels`를 데이터 위젯 레이아웃으로 재해석
-- 표면: 잉크 네이비/블랙 캔버스, 어두운 panel 레이어, 보라색 interaction accent, 얇은 경계선, 12~16px radius
-- 데이터 언어: 강한 KPI 숫자, tabular figures, 차트 toolbar, tooltip, 실제 chart/table 동등 대안
-- 시장 의미색: 상승 레드/하락 블루/지연 앰버/실시간 청록을 문구·기호와 병기; 퍼플은 선택·인터랙션에만 사용
-- 상태 rail: 상태·기준 시각·수신 시각·출처를 상단에 압축하되 상세 고지는 유지
-- 모바일: 1열 우선순위, 내부 tape/table만 가로 스크롤, 고정 하단 탭, 320px·200% 확대 검증
-- 범위: 주문·계좌·ETF/ETN/펀드 CTA 제거; 실제 Premium 방향/근거는 승인된 권한에서만 유지
+검증되지 않은 색상 조합은 사용하지 않는다. 상태는 항상 텍스트·기호·수치 부호를 함께 제공한다.
 
-**상태:** Chainx-inspired 다크 전환은 사용자 승인을 받았다. 기존 `EVIDENCE TAPE` 구현의 route/API·상태 축·접근성 계약은 유지하고 시각·위젯·반응형 구조만 교체한다. 결제·공급자·법무 승인은 여전히 출시 차단 조건이다.
+## 2. Global frame
 
-## 1. 디자인 게이트 결정
+### Desktop
 
-| 항목 | 승인 기준 |
-|---|---|
-| 제품 인상 | 장식적인 트레이딩 게임이 아닌 신뢰 중심 금융 리서치 터미널 |
-| 기본 테마 | 잉크 네이비/블랙 캔버스와 어두운 panel 레이어의 다크 리서치 커맨드센터 |
-| 정보 우선순위 | 데이터 상태·기준 시각 → 강한 KPI → 가격 흐름 → 근거·고지 → 다음 행동 |
-| 프리미엄 표현 | 방향을 과장하지 않고 더 깊은 근거·이력·신선도 접근으로 설명 |
-| 상태 표현 | 색상, 텍스트, 기호, 설명을 함께 사용하며 상태 축을 분리 |
-| 인터랙션 | 퍼플은 선택·주요 CTA·차트 강조에만 사용하고 상승/하락 의미에는 사용하지 않음 |
-| 모바일 원칙 | 한 열 콘텐츠와 우선순위 정보 중심; 데스크톱과 동일한 상태·기준 시각 보장 |
-| 다크 접근성 | 다크 기본값을 1급 경험으로 검증하고 일반 텍스트 4.5:1, UI 경계 3:1 이상 확보 |
-| 폰트 | `Pretendard` 우선, `Noto Sans KR` 및 시스템 sans-serif 폴백 |
+```text
+[232px Sidebar] [64px Topbar: brand / search / session / account]
+                 [40px MarketRail]
+                 [Page content, 12-column grid]
+```
 
-## 2. 제품 셸과 레이아웃
+### Mobile
 
-### 2.1 데스크톱
+```text
+[56px Topbar]
+[MarketRail: internal horizontal scroll]
+[64px Sticky task navigation]
+[Page content: one column]
+```
 
-- 최소 지원 폭: 1024px 이상에서 다중 열 레이아웃
-- 상단 바: 브랜드, 전역 검색, 연결·데이터 상태, 계정·구독 상태
-- 상단 명령 바: 시장, 검색/스크리너, 관심목록, 구독·계정
-- 명령 바 아래 market tape: 장 상태, KOSPI/KOSDAQ, 거래대금, freshness
-- 중앙 콘텐츠: 현재 작업 화면. 최대 폭은 1,440px 안에서 화면별로 결정
-- 우측 보조 패널: 근거, 기준 시각, 위험 고지, 장애 상세를 선택적으로 표시
-- 좌측 내비게이션은 축소 상태에서도 아이콘만으로 의미를 전달하지 않도록 라벨을 제공
+Sidebar는 데스크톱에서만 보이며, mobile에서는 market rail 아래 sticky task navigation으로 대체한다. 화면 하단 fixed overlay는 콘텐츠를 가리므로 사용하지 않는다. 전체 page overflow는 숨기지 않고 원인을 제거한다.
 
-### 2.2 모바일
+## 3. Screen contracts
 
-- 320px부터 가로 스크롤 없이 핵심 작업을 수행
-- 상단: 브랜드, 검색 진입, 연결·신선도 요약
-- 본문: 한 열, 섹션 순서 고정, 핵심 정보 우선
-- 하단 탭: 시장, 검색, 관심목록, 구독·계정
-- 표는 화면별로 다음 중 하나를 선택한다.
-  - 핵심 열만 카드에 노출하고 전체 정보는 상세 확장
-  - 우선 열을 고정한 가로 스크롤 표
-  - 행을 카드로 바꾸고 동일한 필드를 상세 영역에 배치
-- 모달보다 전체 화면 또는 바텀시트를 우선하며, safe-area와 포커스 복귀를 보장한다.
+### Market
 
-### 2.3 그리드
+- H1 `오늘 시장`
+- session/freshness를 H1 근처에 배치
+- KOSPI/KOSDAQ와 breadth를 첫 데이터 그룹으로 배치
+- movers는 compact table/list로 제공
+- 검색·스크리너 CTA는 결과 탐색의 다음 행동으로 배치
 
-- 4px 기반 간격으로 정렬하고, 주요 섹션은 8px 배수로 배치
-- 데스크톱 콘텐츠는 12열 논리 그리드를 사용한다.
-- 기본 콘텐츠 열은 읽기 길이를 제한하고, 수치 표·차트는 필요한 경우 전체 콘텐츠 폭을 사용한다.
-- 화면 폭이 줄어들면 우측 보조 패널을 본문 하단으로 이동하고, 상단 명령 바는 모바일 하단 탭과 압축 상단 바로 전환한다.
+### Stock
 
-## 3. 시각 토큰 기준
+- identity → freshness → quote lead → local navigation → chart/table → evidence 순서
+- quote의 현재가·등락·거래량에 tabular figures 적용
+- chart는 text summary와 table fallback을 동반
+- signal dossier는 권한별 필드를 서버 응답대로 표시
 
-### 3.1 색상 의미 토큰
+### Signals
 
-색상 값은 구현 시작 시 대비 자동 검증의 기준값으로 사용한다. 상태 의미는 색상에 의존하지 않는다.
+- subscriber: connection state, filters, signal rows, evidence details
+- guest/member: directionless permission explanation only
+- stale/reconnecting/revoked 상태는 active 상태와 동일하게 보이지 않음
 
-| 토큰 | 기준값 | 용도 |
+## 4. Component behavior
+
+| Component | Required states | Notes |
 |---|---|---|
-| `surface.canvas` | `#080812` | 다크 캔버스 배경 |
-| `surface.raised` | `#141420` | 카드·패널 표면 |
-| `surface.subtle` | `#1D1D2E` | 보조 위젯·입력·스켈레톤 |
-| `text.primary` | `#F7F7FB` | 본문·핵심 수치 |
-| `text.secondary` | `#B6B6C8` | 설명·보조 정보 |
-| `text.tertiary` | `#8D8DA3` | 보조 라벨. 단독 본문에는 사용하지 않음 |
-| `border.default` | `#35354A` | 기본 구분선 |
-| `border.strong` | `#666681` | 입력·표·포커스 주변 구분 |
-| `interactive.primary` | `#754DFF` | 주요 버튼·링크·선택 상태 |
-| `interactive.hover` | `#906FFF` | 주요 상호작용 hover/pressed |
-| `focus.ring` | `#B5A1FF` | 키보드 포커스 외곽선 |
-| `status.up.fg` | `#FF626A` | 상승 상태 텍스트·기호 |
-| `status.up.bg` | `#35191F` | 상승 상태 배경 |
-| `status.down.fg` | `#78A4FF` | 하락 상태 텍스트·기호 |
-| `status.down.bg` | `#172744` | 하락 상태 배경 |
-| `status.neutral.fg` | `#B6B6C8` | 보합·중립 |
-| `status.warning.fg` | `#FFC857` | 지연·주의 |
-| `status.warning.bg` | `#3A2D12` | 지연·주의 배경 |
-| `status.error.fg` | `#FF747C` | 오류 |
-| `status.error.bg` | `#3A1B20` | 오류 배경 |
-| `status.info.fg` | `#70D2C7` | 안내·처리중 |
-| `status.info.bg` | `#12302F` | 안내·처리중 배경 |
-
-- 상태 배경 위 텍스트는 해당 `*.fg`를 사용한다.
-- 색상 대비는 일반 텍스트 4.5:1 이상, 큰 텍스트 3:1 이상, UI 경계·포커스 3:1 이상을 목표로 자동·수동 검증한다.
-- 상승·하락은 한국 시장의 관습을 따를 수 있으나 `상승`, `하락`, `보합` 텍스트와 기호를 항상 병기한다.
-
-### 3.2 타이포그래피
-
-| 역할 | 크기/행간 | 사용처 |
-|---|---:|---|
-| Display | 32/40 | 페이지 핵심 제목. 한 화면에 제한 |
-| Heading 1 | 28/36 | 주요 화면 제목 |
-| Heading 2 | 24/32 | 섹션 제목 |
-| Heading 3 | 20/28 | 카드·패널 제목 |
-| Body large | 18/28 | 핵심 설명·결제 가치 |
-| Body | 16/24 | 기본 본문·표 셀 |
-| Label | 14/20 | 필드명·탭·버튼 |
-| Caption | 12/18 | 보조 설명·기준 시각 |
-| Numeric | 역할별 크기 + `tabular-nums` | 가격·등락·거래량·시간 |
-
-- 기본 글꼴은 `Pretendard, "Noto Sans KR", system-ui, sans-serif` 순서다.
-- 수치에는 `font-variant-numeric: tabular-nums`를 사용한다.
-- 본문은 16px 이하로 축소하지 않는다. 캡션은 핵심 의미를 단독으로 전달하지 않는다.
-
-### 3.3 간격·형태·모션
-
-- 간격: `4, 8, 12, 16, 20, 24, 32, 40, 48, 64px`
-- 모서리: 입력·버튼 8px, 카드 12px, 바텀시트 상단 16px
-- 그림자: 표면 위계에만 약하게 사용하고 상태나 권한의 의미로 사용하지 않는다.
-- 기본 전환: 120~180ms의 opacity/color 중심 전환
-- `prefers-reduced-motion: reduce`에서는 이동·확대·자동 애니메이션을 제거한다.
-- 깜박임으로 신호를 강조하지 않는다. 실시간 갱신은 값과 상태 라벨만 갱신한다.
-
-## 4. 화면별 승인 명세
-
-### 4.1 시장 개요 `WEB-MARKET`
-
-**데스크톱**
-
-1. 페이지 제목과 장 상태
-2. 시장 기준 시각·데이터 신선도·연결 상태
-3. 주요 지수/시장 요약 카드
-4. 상승·하락·거래량·수급 요약
-5. 대표 종목 또는 관심 종목 진입 목록
-6. 데이터 출처와 산정 기준
-
-**모바일**
-
-- 장 상태와 기준 시각을 첫 화면에 고정한다.
-- 요약 카드는 세로 스택으로 배치한다.
-- 표 대신 종목 행 카드와 핵심 두세 개 수치를 먼저 보여준다.
-
-**필수 상태**
-
-`loading`, `REALTIME`, `DELAYED`, `STALE`, `UNAVAILABLE`, API `error`, 결과 `empty`.
-
-### 4.2 검색·스크리너 `WEB-SEARCH`, `SCREEN-001`
-
-- 검색 입력은 종목명·코드로 동작하며 결과에 거래소·보안 유형·거래 상태를 표시한다.
-- 검색 결과 없음과 검색 오류를 별도 화면 상태로 제공한다.
-- 스크리너는 승인된 구조화 조건만 제공하고 조건·결과 기준 시각·제한을 함께 표시한다.
-- 자연어 입력, 저장 필터, 방향을 유추할 수 있는 비구독자용 정렬·집계는 만들지 않는다.
-- 키보드 입력, 결과 하이라이트, 선택 후 원래 작업 복귀를 지원한다.
-
-### 4.3 종목 상세 `WEB-STOCK`
-
-**데스크톱 순서**
-
-1. 종목명·코드·거래 상태·관심 추가/삭제
-2. 현재가·등락·거래량·`asOf`·`receivedAt`·출처
-3. 기간·지표 선택, 차트, 동일 데이터를 제공하는 표
-4. 신호 요약 또는 `SubscriptionGate`
-5. 수급·뉴스·재무·신호 이력 탭/섹션
-6. 산정 기준·출처·위험 고지
-
-**모바일 순서**
-
-- 식별 정보와 데이터 상태를 상단에 고정한다.
-- 가격 요약 → 차트/표 → 신호 상태 → 수급·뉴스·재무 순서를 유지한다.
-- 상세 탭은 가로 스크롤 탭보다 섹션 앵커 또는 접힘 영역을 우선한다.
-
-**관심목록 상태**
-
-`AUTH_REQUIRED`, `saving`, `saved`, `duplicate`, `save_error`, `delete_confirm`, `deleted`, `delete_error`를 분리한다. 성공 토스트만으로 상태를 전달하지 않고 버튼·목록 상태도 갱신한다.
-
-### 4.4 잠금 신호 `WEB-SIGNAL-LOCKED`
-
-비회원·무료 회원에게는 신호가 존재할 수 있다는 제품 가치와 구독 CTA만 보여준다.
-
-- 허용: 잠금 라벨, 제공 항목 설명, 구독 가격 영역(승인된 가격일 때), 로그인/구독 CTA
-- 금지: 방향, 강도, 정확한 발생·발행 시각, 근거, 알고리즘 버전, 신호 이력, 방향 추론이 가능한 필터·정렬·집계·차트 마커·캐시
-- 로그인 필요와 구독 필요를 서로 다른 메시지로 표시한다.
-- 잠금 화면은 실제 신호 데이터의 시각적 모양을 재현하지 않고, 방향을 유추할 수 없는 설명형 플레이스홀더를 사용한다.
-
-### 4.5 활성 실시간 신호 `WEB-SIGNAL-ACTIVE`
-
-**상단 상태 바**
-
-- 연결됨/재연결 중/복구됨/복구 불가
-- 마지막 정상 수신 시각
-- 데이터 신선도
-- 현재 스트림의 `streamKey`와 내부 cursor는 사용자에게 불필요하면 숨기되 관측 가능하도록 한다.
-
-**신호 행·카드**
-
-- 종목·방향·강도·발생 시각·발행 시각·유효기간·알고리즘 버전
-- 상태: `ACTIVE`, `SUSPENDED`, `EXPIRED`, `CANCELLED`, `VALIDATING`
-- 확장 영역: 당시 근거, revision 참조, 산정 기준, 위험 고지
-- 방향은 텍스트와 기호로 병기하고 색상만으로 구분하지 않는다.
-
-**무결성 표현**
-
-중복·역순 이벤트는 화면에 재표시하지 않는다. gap이면 `resync-required` 상태를 표시하고 replay 또는 snapshot 복구 결과를 안내한다. 복구 전 마지막 값은 최신값처럼 강조하지 않는다.
-
-### 4.6 관심목록 `WEB-WATCHLIST`
-
-- empty: 검색·시장으로 이동하는 CTA와 추가 방법
-- populated: 종목명·코드·현재가·등락·신선도·마지막 갱신
-- 재방문 시 서버 상태를 다시 확인하고 오래된 캐시만으로 최신 상태를 만들지 않는다.
-- 삭제는 확인 단계가 필요하며, 삭제 성공·실패를 목록과 메시지에 함께 반영한다.
-- 모바일 하단 탭에서 두 단계 이내로 재방문·삭제 가능해야 한다.
-
-### 4.7 구독·계정 `WEB-SUBSCRIPTION`
-
-상품 설명, 가격, 자동갱신, 환불·해지 정책, 결제 처리 상태, 현재 권한과 종료 시각을 한 흐름에서 보여준다.
-
-| 상태 | 화면에 반드시 표시할 것 |
-|---|---|
-| `pending` | 결제는 접수되었으나 권한 확인 중이라는 설명, 중복 결제 방지 안내 |
-| `active` | 권한 범위, 시작/다음 갱신 시각, 신호 접근 CTA |
-| `cancellation-scheduled` | 권한 종료 시각, 재개 가능 여부, 다음 행동 |
-| `refund-pending` | 환불 처리 상태, 환불 후 권한 정책, 문의 경로 |
-| `payment-failed` | 공급자 사유(제공 가능한 경우), 재시도, 권한 영향 |
-| `expired` | 권한 종료 사실, 잠금 화면, 재구독 CTA |
-
-결제 성공 redirect는 `pending`으로 시작할 수 있으며 서버 entitlement가 `active`가 되기 전 실제 신호를 노출하지 않는다.
-
-## 5. 공통 컴포넌트 계약
-
-| 컴포넌트 | 필수 입력/상태 | 접근성·권한 규칙 |
-|---|---|---|
-| `DataFreshnessBadge` | `asOf`, `receivedAt`, `dataStatus`, `staleAfter`, `source` | 아이콘 없이도 텍스트로 의미 전달 |
-| `PriceMetric` | 값, 단위, 변동값, 방향, 기준 시각 | 상승/하락/보합 텍스트 병기 |
-| `ChartWithTable` | 시계열, 기간, 지표, 요약 | 차트와 동일 데이터의 탐색 가능한 표 제공 |
-| `SignalCard/Table` | 권한별 필드, 상태, 시각, 유효기간, 버전 | 비구독자는 민감 필드·추론 경로를 받지 않음 |
-| `SubscriptionGate` | `AUTH_REQUIRED`, `ENTITLEMENT_REQUIRED`, `REVOKED`, CTA | 잠금 사유와 다음 행동을 명확히 구분 |
-| `EntitlementStatus` | entitlement 상태, 시작/종료, 다음 행동 | 결제 상태와 권한 상태를 섞지 않음 |
-| `ReconnectBanner` | 연결 상태, 마지막 정상 시각, replay/resync 결과 | 실시간 업데이트를 과도하게 알리지 않음 |
-| `RiskDisclosure` | 고지 ID·버전·표시 위치·동의 필요 여부 | 신호 근처에 항상 접근 가능 |
-| `StockSearch` | query, loading, empty, validation, result | 입력 라벨·오류 연결, 키보드 선택 지원 |
-| `InlineError` | 오류 코드/request ID, 해결 행동 | 오류 원인과 복구 행동을 함께 제공 |
-| `ConfirmSheet` | 대상, 취소/확인, 포커스 복귀 | 삭제·해지 등 비가역 행동에 사용 |
-
-모든 컴포넌트는 `default`, `loading`, `empty`, `error`, `stale`, `permission-locked`, `degraded`, `selected`, `keyboard-focus` 변형을 설계 산출물에서 확인할 수 있어야 한다.
-
-## 6. 콘텐츠·카피 규칙
-
-### 사용해야 하는 표현
-
-- `기준 시각`
-- `마지막 정상 수신`
-- `데이터가 지연되고 있습니다`
-- `구독 권한이 필요합니다`
-- `결제 확인 중입니다. 권한이 활성화되면 신호를 확인할 수 있습니다`
-- `이 신호는 투자 결과를 보장하지 않습니다`
-
-### 피해야 하는 표현
-
-- 수익을 보장하거나 확정적으로 암시하는 문구
-- 근거 없는 `최적`, `정답`, `확실한 종목` 표현
-- 법무 승인 전 고객 화면의 `매수`, `매도` 권유형 카피
-- stale 데이터를 최신 신호처럼 보이게 하는 `실시간` 단독 표기
-- 잠금 상태에서 방향을 암시하는 색상·화살표·순위·수치
-
-신호 방향 enum과 고객 노출 문구는 법무 승인 전 내부 계약으로만 유지한다.
-
-## 7. 접근성·반응형 수용 기준
-
-- 키보드만으로 검색, 종목 선택, 관심 추가·삭제, 구독 CTA, 오류 재시도를 완료한다.
-- 모든 포커스는 3:1 이상 식별 가능하고 sticky header·bottom nav에 가리지 않는다.
-- 폼 레이블, 도움말, 오류 메시지를 programmatic relationship으로 연결한다.
-- 실시간 상태는 필요한 경우에만 `aria-live="polite"`로 알리고, 값이 바뀔 때마다 포커스를 빼앗지 않는다.
-- 차트에는 데이터 요약, 축 설명, 동일 데이터 표, 기간·지표 선택 대안을 제공한다.
-- 모달·바텀시트는 열릴 때 포커스를 이동하고 닫힐 때 호출 요소로 복귀한다.
-- 200% 확대와 320px 리플로에서 핵심 기능이 잘리지 않는다.
-- 색각 이상·흑백·고대비 환경에서 상태를 판별할 수 있다.
-- `prefers-reduced-motion`을 지원하고 깜박임·빠른 반복 애니메이션을 사용하지 않는다.
-- 모바일 터치 타깃은 최소 44×44 CSS px를 목표로 한다.
-
-## 8. 승인용 프로토타입 경로
-
-프로토타입은 실제 결제·실시간 공급자에 연결하지 않고 계약된 상태를 재현한다.
-
-| 경로 | 반드시 보여줄 상태 |
-|---|---|
-| 시장 → 검색 → 상세 → 관심 추가 → 관심목록 재방문 → 삭제 | empty, saved, duplicate, delete confirm, deleted, error |
-| 상세 → 잠금 신호 → 구독 → 결제 처리중 → 활성 신호 | auth required, entitlement required, pending, active |
-| 활성 신호 → stale → replay/resync | reconnecting, stale, replay success, resync failure |
-| 로그인 만료 → 재로그인 → 원래 작업 복귀 | session expired, provider cancel/fail, return URL |
-| 결제 실패·해지 예정·환불 처리중 | payment failed, cancellation scheduled, refund pending |
-| 스크리너 → 구조화 조건 → 결과 → 상세 | valid, empty, validation error, stale |
-
-프로토타입 평가 과제는 기준 시각 찾기, 잠금 의미 설명, 관심목록 재방문·삭제, 결제 처리중과 활성 구분, 신호 근거·위험 고지 설명, 연결 장애 복구로 고정한다.
-
-## 9. 요구사항 추적표
-
-| 요구사항 | 화면/컴포넌트 | 검증 산출물 |
-|---|---|---|
-| `PRD-001` 인증·세션 | `WEB-SEARCH`, `SubscriptionGate`, 로그인 상태 | AUTH-001, return URL 시나리오 |
-| `PRD-002` 시장 개요 | `WEB-MARKET`, `DataFreshnessBadge` | 시장 상태·기준 시각 테스트 |
-| `PRD-003` 검색 | `StockSearch`, 검색 결과 | 결과 없음·오류·키보드 테스트 |
-| `PRD-004` 종목 상세 | `WEB-STOCK`, `ChartWithTable` | 상세 핵심 경로 |
-| `PRD-005` 실시간 시세 | `PriceMetric`, 신선도 배지 | REALTIME/DELAYED/STALE/UNAVAILABLE |
-| `PRD-006` 프리미엄 신호 | `WEB-SIGNAL-LOCKED`, `WEB-SIGNAL-ACTIVE` | 권한별 응답·화면 비교 |
-| `PRD-007` 신호 근거 | `SignalCard/Table`, `RiskDisclosure` | 시각·버전·revision·고지 확인 |
-| `PRD-008` 구조화 스크리너 | `SCREEN-001` | 허용 조건·제한·오류 테스트 |
-| `PRD-009` 관심목록 CRUD | `WEB-WATCHLIST` | 소유권·재방문·삭제 테스트 |
-| `PRD-010` 구독 생명주기 | `WEB-SUBSCRIPTION`, `EntitlementStatus` | pending/active/환불/만료 흐름 |
-| `PRD-011` 장애 상태 | `ReconnectBanner`, `InlineError` | stale·gap·replay·revoke 테스트 |
-
-## 10. 구현 핸드오프 체크리스트
-
-### 디자인
-
-- [ ] 8개 핵심 화면의 데스크톱·모바일 시안과 필수 상태 변형 작성
-- [ ] 컴포넌트별 토큰·포커스·오류·권한 상태 작성
-- [ ] 잠금 화면에서 방향 추론 경로가 없는지 검토
-- [ ] 실제 신호와 placeholder의 시각적 혼동 여부 검토
-
-### 계약
-
-- [ ] API 필드와 화면 필드가 `08-api-data-contract.md`와 일치
-- [ ] `dataStatus`, `asOf`, `receivedAt`, `source` 누락 여부 검토
-- [x] entitlement와 스트림 revoke 상태를 화면에서 분리
-- [x] 결제 redirect와 권한 활성화 상태를 분리
-
-### 접근성·품질
-
-- [ ] WCAG 2.2 AA 대비 자동 검사 및 수동 색각/흑백 검사
-- [ ] 키보드·스크린리더·320px·200% 확대 검사
-- [ ] 차트 대체 표와 실시간 `aria-live` 동작 검사
-- [ ] reduced motion과 포커스 복귀 검사
-- [ ] 금융 오해·신호 과장·stale 오표시 사용성 테스트
-
-### 출시 차단
-
-다음 항목이 승인되기 전에는 디자인이 완료되어도 상용 출시로 간주하지 않는다.
-
-- 구독 가격·자동갱신·환불·결제대행사
-- 간편로그인 제공자와 동의 문구
-- 시세 공급자·재배포권·SLA·비용
-- 알고리즘 재계산 기준·신호 유효기간·성과 산정 방식
-- 우선주·스팩·리츠 포함 여부
-- 매수·매도 표현 및 금융 규제·위험 고지 문구
-- 개인정보 보존·삭제·백업 재적용 정책
-- 최종 RPO/RTO, replay 보존기간, staleAfter, 권한 회수 최대 지연
+| `Sidebar` | active, collapsed, focus | route label은 사용자 언어 |
+| `MarketRail` | realtime, delayed, stale, unavailable | 내부 가로 스크롤, 상태 텍스트 포함 |
+| `QuoteLead` | loading, populated, stale, unavailable | 기준 시각과 부호 병기 |
+| `PriceChart` | loading, populated, empty, error | 표 대체 경로 필수 |
+| `SignalDossier` | locked, active, validating, suspended, expired | 실제 premium 필드는 권한 필요 |
+| `PermissionGate` | login-required, subscription-required, revoked | 잠긴 방향 추론 금지 |
+| `SearchField` | idle, typing, loading, empty, error | label과 결과 수 제공 |
+| `DataTable` | loading, empty, error, stale | semantic table; mobile compact grid keeps rank, instrument, price, rate, freshness visible |
+| `ReconnectBanner` | connected, reconnecting, resynced, failed | 마지막 정상 수신 시각 포함 |
+| `RiskDisclosure` | collapsed, expanded | 고지 버전과 source 유지 |
+
+## 5. Copy rules
+
+- 버튼은 결과를 말한다: `관심종목에 추가`, `다시 시도`, `구독 확인`.
+- 내부 상태값을 그대로 사용자에게 노출하지 않는다. `ENTITLEMENT_REQUIRED` 대신 `활성 구독이 필요합니다`를 사용한다.
+- 장식성 영문 eyebrow와 과도한 대문자 라벨을 사용하지 않는다.
+- `매수/매도`는 승인된 고지와 함께 사용하며, 수익 보장·추천처럼 읽히는 문구를 사용하지 않는다.
+
+## 6. Accessibility contract
+
+- visible focus, keyboard order, skip link, ESC close, focus return
+- semantic headings, table headers/caption, button/link semantics
+- chart summary/table fallback
+- `aria-live="polite"`는 상태 변화에 제한
+- reduced motion
+- 320px/200% zoom/reflow
+- non-color status representation
+
+## 7. Validation evidence
+
+구현 완료 판단에는 다음을 첨부한다.
+
+- `/market`, `/stocks/005930` 데스크톱 캡처
+- 375px 모바일 캡처
+- market → stock → watchlist 흐름 캡처/테스트
+- loading/empty/error/stale/locked 상태 캡처
+- keyboard focus 및 automated accessibility 결과
+- 기존 API/security/contract test 결과

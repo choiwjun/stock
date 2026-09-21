@@ -42,7 +42,7 @@
 | UX-005 | 반응형 작업 우선순위 | 데스크톱은 다중 열 스캔, 모바일은 시장 요약→movers→검색→상세 순서로 재배치하고 320px/200% 확대에서도 조작 가능하다. |
 | UX-006 | 시각적 접근성 | 상승/하락은 색상 단독으로 표현하지 않고 기호·문구·수치 부호를 병기하며, 모든 상태·차트·테이블에 키보드/스크린리더 대체 정보를 제공한다. |
 | UX-007 | 근거 우선 위계 | 시장 first fold는 Market Pulse→Movers→Flow/Table, 종목 first fold는 Stock Identity→Quote Lead→ChartWithTable 순서로 구성하고 반복 카드·상태 정보가 핵심 판단을 가리지 않는다. |
-| UX-008 | 고충실도 리서치 언어 | Chainx의 다크 대시보드 밀도·KPI 위젯·차트 toolbar·purple interaction accent를 참고하되 원본 자산·카피·화면은 복제하지 않는다. 국내 시장 의미색·근거·신선도·실제 데이터 그래픽을 유지한다. (사용자 승인) |
+| UX-008 | 고충실도 리서치 언어 | `SIGNALLAB RESEARCH DESK V2` 자체 디자인 시스템으로 dark graphite 캔버스·KPI·차트 toolbar·절제된 interaction accent를 사용한다. 특정 제품 자산·카피·화면은 복제하지 않으며, 국내 시장 의미색·근거·신선도·실제 데이터 그래픽을 유지한다. (사용자 승인) |
 | UX-009 | 범위 경계 | 주문·계좌·ETF/ETN/펀드 CTA를 공개 탐색에서 제거하고, 실제 Premium 방향·근거·이력은 권한 정책을 우회해 유추할 수 없도록 한다. |
 
 ## 4. 범위 동결

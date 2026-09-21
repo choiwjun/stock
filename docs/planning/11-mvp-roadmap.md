@@ -8,7 +8,7 @@
 
 ## 2. Phase 0 — 범위·계약·디자인 게이트
 
-**현재 상태:** `MARKET TAPE` 전면 리디자인의 시장판·대표 종목 UI 구현과 자동/브라우저 검증을 완료했다. API/이벤트 schema·DB·공급자·법무·결제 정책은 별도 승인 대상이며 출시 blocker로 유지한다.
+**현재 상태:** 기존 화면 감사를 완료했고, `SIGNALLAB RESEARCH DESK V2` 전면 리디자인 방향과 구현 범위를 사용자가 승인했다. planning 문서 세트를 동기화한 뒤 UI 수직 슬라이스를 구현한다. API/event schema·DB·공급자·법무·결제 정책은 별도 승인 대상이며 출시 blocker로 유지한다.
 
 ### 산출물
 
@@ -25,19 +25,18 @@
 - P0 요구사항 → 화면 → API/이벤트 → DB → 티켓 → 테스트 추적표 완성
 - 실제 데이터와 잠금 미리보기의 공개 범위 승인
 
-## 3. Phase 0.5 — `EVIDENCE TAPE` UI 재디자인
+## 3. Phase 0.5 — `SIGNALLAB RESEARCH DESK V2` UI 구현
 
-**현재 상태:** 기존 `MARKET TAPE` 구현은 기능 baseline으로 완료했다. 국내·글로벌 주식 UX 및 AOI Alpha 비교 리서치를 반영한 `EVIDENCE TAPE / 근거 우선 리서치 데스크` 재설계는 사용자 승인 대기다.
+**현재 상태:** 사용자 승인 완료. 구현은 기존 기능 계약을 보존하면서 `public/index.html`·`public/styles.css`·`public/app.js`의 표현 계층을 교체한다.
 
-**진입 조건:** 새 시각 방향·IA·wireframe 승인 완료.
-
-- 승인된 Chainx-inspired dark canvas·ink chrome·display type·tabular figures·간격·그리드 토큰을 구현한다.
-- 시장 화면의 Market Pulse/breadth/movers/근거 표를 먼저 세로 슬라이스한다.
-- 종목 상세의 Stock Identity/Quote Lead/ChartWithTable/Evidence Panels/상태 rail을 연결한다.
-- 모바일 하단 탭, 가로 tape, 320px·200% 확대·키보드·reduced motion을 검증한다.
+- 어두운 graphite 캔버스, sidebar, topbar, market rail, 12열 그리드 토큰을 구현한다.
+- 시장 화면의 Market Pulse/breadth/movers/탐색 CTA를 먼저 세로 슬라이스한다.
+- 종목 상세의 identity/quote/chart-table/evidence panels/state rail을 연결한다.
+- 개발용 sandbox/role switch UI를 일반 chrome에서 제거하거나 개발 모드로 격리한다.
+- 모바일 하단 탭, 내부 가로 스크롤, 320px·200% 확대·키보드·reduced motion을 검증한다.
 - 기존 API/권한/freshness 계약과 fixture 기능을 회귀 검증한다.
 
-**통과 조건:** 시장·종목 핵심 화면의 정상/로딩/빈 상태/오류/stale/권한 잠금이 같은 시각 시스템으로 동작하고, 사용자 승인 명세와 스크린샷 비교를 통과한다.
+**통과 조건:** 시장·종목 핵심 화면의 정상/로딩/빈 상태/오류/stale/권한 잠금이 같은 시각 시스템으로 동작하고, 승인된 wireframe/design spec과 브라우저 캡처가 일치한다.
 
 ## 4. Phase 1 — 대표 종목 수직 슬라이스
 

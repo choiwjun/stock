@@ -2,7 +2,7 @@
 
 ## 문서 상태
 
-정본 요구사항과 연결된 구현 티켓이다. 기존 `MARKET TAPE`와 `EVIDENCE TAPE` 방향은 baseline으로 구현되었고, `Chainx-inspired EVIDENCE DESK / 다크 투자 리서치 커맨드센터` 방향은 사용자 승인을 받아 새 구현 기준으로 승격했다. 공급자·법무·결제·알고리즘 정책은 별도 출시 blocker로 유지한다. 모든 티켓은 계층별 산출물이 아니라 데모 가능한 수직 slice를 우선한다.
+정본 요구사항과 연결된 구현 티켓이다. 기존 화면은 기능 baseline으로만 취급하고, `SIGNALLAB RESEARCH DESK V2 / 프리미엄 금융 리서치 터미널` 전면 리디자인을 새 구현 기준으로 사용한다. 공급자·법무·결제·알고리즘 정책은 별도 출시 blocker로 유지한다. 모든 티켓은 계층별 산출물이 아니라 데모 가능한 수직 slice를 우선한다.
 
 ## 1. 추적 규칙
 
@@ -12,23 +12,23 @@
 
 > 사용자 승인에 따라 아래 리디자인 티켓을 구현 기준으로 확정한다. 출시 blocker는 각 티켓에 별도로 표시한다.
 
-### UI-REDESIGN-001 — `Chainx-inspired EVIDENCE DESK` 시장판·종목 상세 재디자인
+### UI-REDESIGN-001 — `SIGNALLAB RESEARCH DESK V2` 전면 리디자인
 
-- 연결: UX-001~009, PRD-002~005/011, IA 시장, UF-MARKET, WF 시장/종목, `docs/research/stock-design-synthesis`, `06-design-plan`, `06-design-spec`
-- 범위: 상단 market ticker, 데스크톱 sidebar, dark KPI widget grid, Market Pulse, breadth, movers, 근거 표, Stock Identity, Quote Lead, ChartWithTable, Evidence Panels, 모바일 하단 탭
-- 시각 기준: Chainx의 밀도·위젯·차트 toolbar·active state를 참고하되 원본 자산은 복제하지 않으며, 퍼플은 인터랙션에만 사용하고 상승 레드/하락 블루·freshness·근거 표시는 유지
+- 연결: UX-001~009, PRD-002~005/011, IA 시장, UF-MARKET, WF 시장/종목, `06-design-plan`, `06-design-spec`
+- 범위: dark graphite canvas, sidebar, topbar, market rail, Market Pulse, breadth, movers, 탐색 CTA, Stock Identity, Quote Lead, ChartWithTable, 모바일 sticky 작업 탭
+- 시각 기준: 하나의 표면 위계와 타이포그래피를 사용하고, 보라색은 인터랙션에만 사용하며 상승 레드/하락 블루·freshness·근거 표시는 유지
 - 비범위: API shape 변경, 새 DB 엔티티, 주문·계좌·ETF/ETN/펀드, 실제 결제/실제 Premium signal 공개
-- 선행 blocker: 색상·카피·금융 표현 법무 검토
-- baseline 상태: 기존 시장판·대표 종목 상세의 명령 바, market tape, quote strip, 상태 rail, 모바일 하단 탭을 구현하고 320px overflow·권한 잠금·기존 fixture 흐름을 검증했다.
-- 새 구현 상태: 사용자 승인·명세 갱신 완료, 구현 진행 중
-- 완료: 근거 우선 first fold, desktop/mobile 정상·loading·empty·error·stale·permission 상태, WCAG 2.2 AA 수동/자동 검증, 기존 route/API 회귀 통과
+- 선행 blocker: 금융 표현·카피·색상 대비 법무/접근성 검토
+- baseline 상태: 현재 기능과 상태 계약, 대표 fixture, route/API 테스트를 보존한다.
+- 새 구현 상태: 사용자 승인·planning 문서 갱신 완료. 1차 CSS QA에서 확인된 누락 surface·spacing·모바일 overlay·핵심 열 숨김을 수정하고 재검증 중
+- 완료: desktop/mobile 정상·loading·empty·error·stale·permission 상태, 개발용 sandbox chrome 분리, WCAG 2.2 AA 수동/자동 검증, 기존 route/API 회귀 통과
 
 ### PLAN-001 — 정본·제품·디자인 게이트
 
 - 연결: PRD-001~011, UX-001~006, IA, UF, WF, DS, `06-design-spec`, Gate A
-- 범위: 정본 문서, MVP 제외 범위, 권한 matrix, 표현/고지 승인, `MARKET TAPE` 시각 방향 승인
+- 범위: 정본 문서, MVP 제외 범위, 권한 matrix, 표현/고지 승인, `SIGNALLAB RESEARCH DESK V2` 시각 방향 승인
 - 완료: decision log의 디자인 결정, 승인 디자인 명세, 상태별 프로토타입 경로·추적표. 가격·공급자·법무 등 출시 차단 결정은 별도 선행 조건으로 유지
-- 상태: 기존 `MARKET TAPE`/`EVIDENCE TAPE` baseline은 구현 완료. Chainx-inspired 다크 전환은 사용자 승인 완료·구현 진행 중; 법무·provider·결제 blocker는 출시 전 유지.
+- 상태: 사용자 승인 완료, 문서 세트 동기화 완료, UI-REDESIGN-001 구현 진행 중; 법무·provider·결제 blocker는 출시 전 유지.
 
 ### DATA-001 — 종목 마스터·공급자 계약
 

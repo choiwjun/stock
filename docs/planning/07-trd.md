@@ -6,7 +6,7 @@
 
 ### 리디자인 영향
 
-`MARKET TAPE`는 프레젠테이션 계층 리디자인이다. REST·stream·권한·freshness·cursor 계약은 변경하지 않는다. UI는 시장 테이프와 quote strip에 기존 `asOf`, `receivedAt`, `dataStatus`, `source`를 압축해 표시하고, 상세 상태/오류/복구 정보는 동일 계약에서 렌더링한다.
+`SIGNALLAB RESEARCH DESK V2`는 프레젠테이션 계층 전면 리디자인이다. REST·stream·권한·freshness·cursor 계약은 변경하지 않는다. UI는 sidebar/topbar/market rail/quote lead에 기존 `asOf`, `receivedAt`, `dataStatus`, `source`를 압축해 표시하고, 상세 상태·오류·복구 정보는 동일 계약에서 렌더링한다. 개발용 sandbox 세션은 제품 사용자 흐름과 분리한다.
 
 ## 1. 기술 목표
 
